@@ -15,7 +15,6 @@
     "test": "jest --config jestconfig.json",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
-    "pre-commit": "yarn lint && yarn test && yarn format && yarn build",
     "prepare": "yarn build",
     "prepublishOnly": "yarn test && yarn lint",
     "preversion": "yarn lint",
@@ -23,7 +22,10 @@
     "postversion": "git push && git push --tags"
   },
   "lint-staged": {
-    "src/**/*.ts": "yarn pre-commit"
+    "src/**/*.ts": [
+			"yarn lint",
+			"yarn format"
+		]
   },
   "devDependencies": {
     "@types/cron": "^1.7.3",
