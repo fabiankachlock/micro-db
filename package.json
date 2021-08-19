@@ -1,0 +1,9 @@
+{
+  "name": "micro-db",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "repository": "https://github.com/fabiankachlock/micro-db",
+  "author": "Fabian Kachlock",
+  "license": "MIT",
+  "private": false
+}
