@@ -9,6 +9,10 @@ export class MicroDBJanitor {
 
 	private dbs: MicroDB[];
 
+	get databases(): MicroDB[] {
+		return this.dbs;
+	}
+
 	constructor(cron: string = '* * 0 * * *' /* every day at midnight */, ...dbs: MicroDB[]) {
 		this.job = new CronJob(cron, this.cleanUpCallBack);
 		this.dbs = dbs;

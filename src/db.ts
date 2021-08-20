@@ -20,7 +20,7 @@ export class MicroDB {
 
 	readonly dataSerializer: MicroDBSerializer;
 
-	private janitor: MicroDBJanitor | undefined = undefined;
+	readonly janitor: MicroDBJanitor | undefined = undefined;
 
 	constructor(options: Partial<MicroDBOptions> = {}) {
 		const resolvedOptions = {
