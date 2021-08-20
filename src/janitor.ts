@@ -9,9 +9,9 @@ export class MicroDBJanitor {
 
 	private dbs: MicroDB[];
 
-	constructor(cron: string = '* * 0 * * *' /* every day at midnight */) {
+	constructor(cron: string = '* * 0 * * *' /* every day at midnight */, ...dbs: MicroDB[]) {
 		this.job = new CronJob(cron, this.cleanUpCallBack);
-		this.dbs = [];
+		this.dbs = dbs;
 	}
 
 	private cleanUpCallBack = async () => {
@@ -25,6 +25,8 @@ export class MicroDBJanitor {
 		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
 		await fs.writeFile(db.fileName, db.dataSerializer.serializeAll(data));
 	};
+
+	public cleanAll = this.cleanUpCallBack;
 
 	public registerDatabase = (db: MicroDB) => {
 		this.dbs.push(db);

@@ -12,3 +12,12 @@ export type MicroDBOptions = {
 	serializer: Serializer;
 	janitorCronjob: string | undefined;
 };
+
+export type WherePredicate<T> = (object: T) => boolean;
+
+export type DBMutation<A, B> = (object: A) => B;
+
+export type DBEntry<T> = {
+	id: string;
+	value: T;
+};

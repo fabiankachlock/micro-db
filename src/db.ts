@@ -10,6 +10,7 @@ const defaultOptions: MicroDBOptions = {
 	defaultData: undefined,
 };
 
+// @internal
 export class MicroDB {
 	private writeStream: fs.WriteStream;
 
@@ -55,8 +56,7 @@ export class MicroDB {
 
 		// setup personal janitor if needed
 		if (resolvedOptions.janitorCronjob) {
-			this.janitor = new MicroDBJanitor(resolvedOptions.janitorCronjob);
-			this.janitor.registerDatabase(this);
+			this.janitor = new MicroDBJanitor(resolvedOptions.janitorCronjob, this);
 		}
 	}
 
