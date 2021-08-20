@@ -1,23 +1,23 @@
-export type DBData = Record<string, any>;
+export type MicroDBData = Record<string, any>;
 
-export interface Serializer {
+export interface MicroDBSerializer {
 	serializeObject(key: string, value: any): string;
-	serializeAll(data: DBData): string;
-	deserialize(raw: string): DBData;
+	serializeAll(data: MicroDBData): string;
+	deserialize(raw: string): MicroDBData;
 }
 
 export type MicroDBOptions = {
 	fileName: string;
-	defaultData: DBData | undefined;
-	serializer: Serializer;
+	defaultData: MicroDBData | undefined;
+	serializer: MicroDBSerializer;
 	janitorCronjob: string | undefined;
 };
 
 export type WherePredicate<T> = (object: T) => boolean;
 
-export type DBMutation<A, B> = (object: A) => B;
+export type Mutation<A, B> = (object: A) => B;
 
-export type DBEntry<T> = {
+export type MicroDBEntry<T> = {
 	id: string;
 	value: T;
 };

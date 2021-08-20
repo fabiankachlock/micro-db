@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { MicroDBJanitor } from './janitor';
-import type { DBData, MicroDBOptions, Serializer } from './micro-db';
+import type { MicroDBData, MicroDBOptions, MicroDBSerializer } from './micro-db';
 import { JSONSerializer } from './serializer/JSONSerializer';
 
 const defaultOptions: MicroDBOptions = {
@@ -14,11 +14,11 @@ const defaultOptions: MicroDBOptions = {
 export class MicroDB {
 	private writeStream: fs.WriteStream;
 
-	private currentData: DBData;
+	private currentData: MicroDBData;
 
 	readonly fileName: string;
 
-	readonly dataSerializer: Serializer;
+	readonly dataSerializer: MicroDBSerializer;
 
 	private janitor: MicroDBJanitor | undefined = undefined;
 
@@ -61,7 +61,7 @@ export class MicroDB {
 	}
 
 	// return current data
-	read = (): DBData => {
+	read = (): MicroDBData => {
 		return this.currentData;
 	};
 
@@ -76,7 +76,7 @@ export class MicroDB {
 	};
 
 	// store multiple new snapshots
-	writeBatch = (data: DBData) => {
+	writeBatch = (data: MicroDBData) => {
 		for (const [key, value] of Object.entries(data)) {
 			this.currentData[key] = value;
 			this.writeStream.write(this.dataSerializer.serializeObject(key, value));

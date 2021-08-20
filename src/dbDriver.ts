@@ -1,4 +1,4 @@
-import type { MicroDBOptions, DBEntry, DBMutation, WherePredicate, DBData } from './micro-db';
+import type { MicroDBOptions, MicroDBEntry, Mutation, WherePredicate, MicroDBData } from './micro-db';
 import { v4 as uuid } from 'uuid';
 import { MicroDB } from './db';
 import { MicroDBJanitor } from './janitor';
@@ -17,10 +17,10 @@ import { MicroDBJanitor } from './janitor';
  * 	}
  * }
  */
-export class MicroDBDriver<T extends DBData> {
+export class MicroDBDriver<T extends MicroDBData> {
 	private db: MicroDB;
 
-	protected data: DBData;
+	protected data: MicroDBData;
 
 	private janitor: MicroDBJanitor | undefined = undefined;
 
@@ -55,7 +55,7 @@ export class MicroDBDriver<T extends DBData> {
 	};
 
 	// select first record that fulfill predicate
-	protected selectWhere = (pred: WherePredicate<T>): DBEntry<T> | undefined => {
+	protected selectWhere = (pred: WherePredicate<T>): MicroDBEntry<T> | undefined => {
 		for (const [key, value] of Object.entries(this.data)) {
 			if (pred(value)) {
 				return {
@@ -68,8 +68,8 @@ export class MicroDBDriver<T extends DBData> {
 	};
 
 	// select all records that fulfill predicate
-	protected selectAllWhere = (pred: WherePredicate<T>): DBEntry<T>[] => {
-		const objects: DBEntry<T>[] = [];
+	protected selectAllWhere = (pred: WherePredicate<T>): MicroDBEntry<T>[] => {
+		const objects: MicroDBEntry<T>[] = [];
 		for (const [key, value] of Object.entries(this.data)) {
 			if (pred(value)) {
 				objects.push({
@@ -114,7 +114,7 @@ export class MicroDBDriver<T extends DBData> {
 
 	// update all records that fulfill predicate
 	protected updateAllWhere = (pred: WherePredicate<T>, object: Partial<T>) => {
-		const updates: DBData = {};
+		const updates: MicroDBData = {};
 		for (const [key, value] of Object.entries(this.data)) {
 			if (pred(value)) {
 				updates[key] = {
@@ -128,7 +128,7 @@ export class MicroDBDriver<T extends DBData> {
 	};
 
 	// mutate a record
-	protected mutate = (id: string, mutation: DBMutation<T, T>): boolean => {
+	protected mutate = (id: string, mutation: Mutation<T, T>): boolean => {
 		if (id in this.data) {
 			const object = this.data[id];
 			this.db.write(id, mutation(object));
@@ -139,7 +139,7 @@ export class MicroDBDriver<T extends DBData> {
 	};
 
 	// mutate first record that fulfill predicate
-	protected mutateWhere = (pred: WherePredicate<T>, mutation: DBMutation<T, T>): boolean => {
+	protected mutateWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>): boolean => {
 		for (const [key, value] of Object.entries(this.data)) {
 			if (pred(value)) {
 				const object = this.data[key];
@@ -152,8 +152,8 @@ export class MicroDBDriver<T extends DBData> {
 	};
 
 	// mutate all records that fulfill predicate
-	protected mutateAllWhere = (pred: WherePredicate<T>, mutation: DBMutation<T, T>) => {
-		const updates: DBData = {};
+	protected mutateAllWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>) => {
+		const updates: MicroDBData = {};
 		for (const [key, value] of Object.entries(this.data)) {
 			if (pred(value)) {
 				const object = this.data[key];
@@ -164,8 +164,8 @@ export class MicroDBDriver<T extends DBData> {
 		this.data = this.db.read();
 	};
 
-	protected mutateAll = <B>(mutation: DBMutation<T, B>) => {
-		const updates: DBData = {};
+	protected mutateAll = <B>(mutation: Mutation<T, B>) => {
+		const updates: MicroDBData = {};
 		for (const [key, value] of Object.entries(this.data)) {
 			updates[key] = mutation(value);
 		}
@@ -197,7 +197,7 @@ export class MicroDBDriver<T extends DBData> {
 
 	// delete all records that fulfill predicate
 	protected deleteAllWhere = (pred: WherePredicate<T>) => {
-		const updates: DBData = {};
+		const updates: MicroDBData = {};
 		for (const [key, value] of Object.entries(this.data)) {
 			if (pred(value)) {
 				updates[key] = undefined;

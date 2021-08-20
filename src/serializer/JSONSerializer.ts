@@ -1,4 +1,4 @@
-import type { DBData, Serializer } from '../micro-db';
+import type { MicroDBData, MicroDBSerializer } from '../micro-db';
 
 /**
  * JSONSerializer Format:
@@ -6,10 +6,10 @@ import type { DBData, Serializer } from '../micro-db';
  * key2: {"json":2}
  */
 
-export class JSONSerializer implements Serializer {
+export class JSONSerializer implements MicroDBSerializer {
 	serializeObject = (key: string, value: any) => `${key}:${JSON.stringify(value)}\n`;
 
-	serializeAll = (data: DBData) =>
+	serializeAll = (data: MicroDBData) =>
 		Object.entries(data)
 			.map(e => this.serializeObject(e[0], e[1])) // serialize every single key-value-pair
 			.join(''); // and combinde them into a single string
@@ -38,6 +38,6 @@ export class JSONSerializer implements Serializer {
 					delete prev[curr?.key || 'no-index'];
 				}
 				return prev;
-			}, {} as DBData);
+			}, {} as MicroDBData);
 	};
 }
