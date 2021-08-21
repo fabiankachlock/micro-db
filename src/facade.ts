@@ -1,5 +1,5 @@
 import type { MicroDBData, MicroDBOptions, WherePredicate, MicroDBEntry, Mutation } from './micro-db';
-import { MicroDB } from './db';
+import { MicroDBBase } from './db';
 import { MicroDBDriver } from './driver';
 
 /**
@@ -22,7 +22,7 @@ export class MicroDBFacade<T extends MicroDBData> {
 	protected data: MicroDBData;
 
 	constructor(options: Partial<MicroDBOptions>) {
-		const db = new MicroDB({
+		const db = new MicroDBBase({
 			...options,
 			janitorCronjob: undefined,
 		});

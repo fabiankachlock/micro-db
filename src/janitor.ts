@@ -1,4 +1,4 @@
-import { MicroDB } from './db';
+import { MicroDBBase } from './db';
 import { CronJob } from 'cron';
 import * as fs from 'fs/promises';
 
@@ -7,13 +7,13 @@ import * as fs from 'fs/promises';
 export class MicroDBJanitor {
 	private job: CronJob;
 
-	private dbs: MicroDB[];
+	private dbs: MicroDBBase[];
 
-	get databases(): MicroDB[] {
+	get databases(): MicroDBBase[] {
 		return this.dbs;
 	}
 
-	constructor(cron: string = '* * 0 * * *' /* every day at midnight */, ...dbs: MicroDB[]) {
+	constructor(cron: string = '* * 0 * * *' /* every day at midnight */, ...dbs: MicroDBBase[]) {
 		this.job = new CronJob(cron, this.cleanUpCallBack);
 		this.dbs = dbs;
 	}
@@ -24,7 +24,7 @@ export class MicroDBJanitor {
 		}
 	};
 
-	public cleanUp = async (db: MicroDB) => {
+	public cleanUp = async (db: MicroDBBase) => {
 		const content = await fs.readFile(db.fileName);
 		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
 		await fs.writeFile(db.fileName, db.dataSerializer.serializeAll(data));
@@ -32,11 +32,11 @@ export class MicroDBJanitor {
 
 	public cleanAll = this.cleanUpCallBack;
 
-	public registerDatabase = (db: MicroDB) => {
+	public registerDatabase = (db: MicroDBBase) => {
 		this.dbs.push(db);
 	};
 
-	public deleteDatabase = (db: MicroDB) => {
+	public deleteDatabase = (db: MicroDBBase) => {
 		this.dbs = this.dbs.filter(d => d.fileName !== db.fileName);
 	};
 

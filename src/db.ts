@@ -10,8 +10,7 @@ const defaultOptions: MicroDBOptions = {
 	defaultData: undefined,
 };
 
-// @internal
-export class MicroDB {
+export class MicroDBBase {
 	private writeStream: fs.WriteStream;
 
 	private currentData: MicroDBData;

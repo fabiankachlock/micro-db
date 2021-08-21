@@ -29,7 +29,7 @@ export class MicroDBMS {
 
 	static table = <T>(name: string, extraOptions: Partial<MicroDBOptions>): MicroDBDriver<T> => {
 		if (name in MicroDBMS.tables) {
-			throw new Error(`Table ${name} already exists`);
+			throw new Error(`Table ${name} already exists!`);
 		}
 
 		const driver = new MicroDBDriver<T>({

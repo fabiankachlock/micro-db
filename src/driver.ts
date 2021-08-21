@@ -1,21 +1,21 @@
 import type { MicroDBOptions, MicroDBEntry, Mutation, WherePredicate, MicroDBData } from './micro-db';
 import { v4 as uuid } from 'uuid';
-import { MicroDB } from './db';
+import { MicroDBBase } from './db';
 import { MicroDBJanitor } from './janitor';
 
 export class MicroDBDriver<T> {
 	private _data: MicroDBData = {};
 
-	private db: MicroDB;
+	private db: MicroDBBase;
 
-	get _dbRef(): MicroDB {
+	get _dbRef(): MicroDBBase {
 		return this.db;
 	}
 
 	readonly janitor: MicroDBJanitor | undefined = undefined;
 
 	constructor(options: Partial<MicroDBOptions>) {
-		this.db = new MicroDB({
+		this.db = new MicroDBBase({
 			...options,
 			janitorCronjob: undefined,
 		});
