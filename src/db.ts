@@ -76,10 +76,12 @@ export class MicroDBBase {
 
 	// store multiple new snapshots
 	writeBatch = (data: MicroDBData) => {
+		let dataToWrite = '';
 		for (const [key, value] of Object.entries(data)) {
 			this.currentData[key] = value;
-			this.writeStream.write(this.dataSerializer.serializeObject(key, value));
+			dataToWrite += this.dataSerializer.serializeObject(key, value);
 		}
+		this.writeStream.write(dataToWrite);
 	};
 
 	// close write stream & kill janitor
