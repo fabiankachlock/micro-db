@@ -2,32 +2,24 @@
 
 micro-db is a lightweight, (by default) json-based, file-based, zero config database for nodejs.
 
-## Table Of Contents
+## Contents
 
-- [Why micro-db?](#why-micro-db-)
+- [Why micro-db](#why-micro-db)
 - [Why micro-db is outstanding](#why-micro-db-is-outstanding)
 - [Features](#features)
   - [Typescript Support](#typescript-support)
   - [Debuggable](#debuggable)
   - [Easily Replaceable](#easily-replaceable)
   - [Expandable](#expandable)
-
-* [When to use micro-db](#when-to-use-micro-db)
-* [When NOT to use micro-db](#when-not-to-use-micro-db)
-
-  - [How to deal with space constraints?](#how-to-deal-with-space-constraints-)
-
-* [Gotchas](#gotchas)
-* [Patterns](#patterns)
+- [When to use micro-db](#when-to-use-micro-db)
+- [When **NOT** to use micro-db](#when-not-to-use-micro-db)
+  - [How to deal with space constraints](#how-to-deal-with-space-constraints)
+- [Gotchas](#gotchas)
+- [Patterns](#patterns)
   - [MicroDBFacade](#microdbfacade)
   - [id-aware records](#id-aware-records)
-* [API](#api)
-  - [MicroDB](#microdb)
-    - [default Options](#default-options)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
-## Why micro-db?
+## Why micro-db
 
 - ☁️ Lightweight
 - ⚡️ Perfomant
@@ -58,15 +50,15 @@ To use the full power of typescript you should use micro-db as a sql database. A
 
 micro-db's default json serializer stores all records in a [human readable format](#xxx) in your database file. Since every database operation results is a new stored record, all operations an their results are traceable in the database file.
 
-### Easily Replaceable
-
-When used right (with the [MicroDBFacade](#xxx)), you hide the actual databse operations from the rest of your app. Which means, that you can easily change your database, without even noticing it anywhere else in the app.
-
 ### Expandable
 
 If the json format used for serialization doesn't suits you needs, you can implement an own [MicroDBSerializer](#xxx) yourself and pass it with your config.
 
 This technique can be used for things as encryption or data compression.
+
+### Easily Replaceable
+
+When used right (with the [MicroDBFacade](#xxx)), you hide the actual databse operations from the rest of your app. Which means, that you can easily change your database, without even noticing it anywhere else in the app.
 
 ## When to use micro-db
 
@@ -76,33 +68,49 @@ micro-db loves an environment, where performance and instant-persistence matters
 
 When space is a heavy constraint for your nodejs app, you should consider using another database.
 
-### How to deal with space constraints?
+### How to deal with space constraints
 
 The MicroDBJanitor is responsible for cleaning up the database file for redundent records. The MicroDBJAnitor is configured by a cronjob, which determineds when and gow often the janitor has to run. The more traffic or changes your db has, the more often the janitor should run, to prevent huge overhead in file size.
 
-# Gotchas
+## Gotchas
 
 In micro-db world a data value of `undefined` deletes the record. If you want store optional values anyhow, you can use `null` for that.
 
-# Patterns
+## Patterns
 
 (#pattern-micro-db-facade)
 
-## MicroDBFacade
+### MicroDBFacade
 
 coming soon...
 
 (#pattern-id-aware-records)
 
-## id-aware records
+### id-aware records
 
 coming soon...
 
 # API
 
-## MicroDB
+## Contents
+
+- [Classes](#microdb)
+  - [MicroDB](#microdb)
+  - [MicroDBBase](#microdbbase)
+  - [MicroDBDriver](#microdbdriver)
+  - [MicroDBFacade](#microdbfacade)
+- [Constants](#default-options)
+- [Types](#types)
 
 coming soon...
+
+### MicroDB
+
+### MicroDBBase
+
+### MicroDBDriver
+
+### MicroDBFacade
 
 ### default Options
 
@@ -114,3 +122,5 @@ const defaultOptions: MicroDBOptions = {
 	defaultData: undefined,
 };
 ```
+
+## Types
