@@ -76,11 +76,11 @@ To use the full power of typescript you should use micro-db as a sql database. A
 
 ### Debuggable
 
-micro-db's default json serializer stores all records in a [human readable format](#xxx) in your database file. Since every database operation results is a new stored record, all operations an their results are traceable in the database file.
+micro-db's default json serializer stores all records in a [human readable format](#jsonserializer) in your database file. Since every database operation results is a new stored record, all operations an their results are traceable in the database file.
 
 ### Expandable
 
-If the json format used for serialization doesn't suits you needs, you can implement an own [MicroDBSerializer](#microdbserializer) yourself and pass it with your config.
+If the json format used for serialization doesn't suits you needs, you can implement an own [`MicroDBSerializer`](#microdbserializer) yourself and pass it with your config.
 
 This technique can be used for things as encryption or data compression.
 
@@ -90,7 +90,7 @@ micro-db has a janitor built in. The main task of the [`MicroDBJanitor`](#microd
 
 ### Easily Replaceable
 
-When used right (with the [MicroDBFacade](#xxx)), you hide the actual database operations from the rest of your app. Which means, that you can easily change your database later on, without even noticing it anywhere else in the app.
+When used right (with the [`MicroDBFacade`](#xxx)), you hide the actual database operations from the rest of your app. Which means, that you can easily change your database later on, without even noticing it anywhere else in the app.
 
 ## When to use micro-db
 
@@ -229,6 +229,8 @@ const defaultOptions: MicroDBOptions = {
 | deserialize     | `(raw: string) => MicroDBData`                      |
 
 #### Builtin
+
+##### `JSONSerializer`
 
 | name             | format                           |
 | ---------------- | -------------------------------- |
