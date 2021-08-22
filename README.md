@@ -2,6 +2,28 @@
 
 micro-db is a lightweight, (by default) json-based, file-based, zero config database for nodejs.
 
+# 🪄 Quickstart
+
+```ts
+type User = {
+	name: string;
+	age: number;
+};
+
+const db = new MicroDB<User>();
+
+const idOfJohn = db.create({ name: 'john', age: 23 });
+
+// john's birthday
+db.update(idOfJohn, { age: 24 });
+
+const john = db.select(idOfJohn);
+// john.name = 'john'
+// john.age = 24
+```
+
+For more information about available methods, check out the [API](#api)
+
 ## Contents
 
 - [Why micro-db](#why-micro-db)
@@ -9,8 +31,8 @@ micro-db is a lightweight, (by default) json-based, file-based, zero config data
 - [Features](#features)
   - [Typescript Support](#typescript-support)
   - [Debuggable](#debuggable)
-  - [Easily Replaceable](#easily-replaceable)
   - [Expandable](#expandable)
+  - [Easily Replaceable](#easily-replaceable)
 - [When to use micro-db](#when-to-use-micro-db)
 - [When **NOT** to use micro-db](#when-not-to-use-micro-db)
   - [How to deal with space constraints](#how-to-deal-with-space-constraints)
@@ -74,17 +96,13 @@ The MicroDBJanitor is responsible for cleaning up the database file for redunden
 
 ## Gotchas
 
-In micro-db world a data value of `undefined` deletes the record. If you want store optional values anyhow, you can use `null` for that.
+In micro-db world a data value of `undefined` deletes the record. If you want to store optional values anyhow, you can use `null` for that.
 
 ## Patterns
-
-(#pattern-micro-db-facade)
 
 ### MicroDBFacade
 
 coming soon...
-
-(#pattern-id-aware-records)
 
 ### id-aware records
 
@@ -95,10 +113,10 @@ coming soon...
 ## Contents
 
 - [Classes](#microdb)
-  - [MicroDB](#microdb)
-  - [MicroDBBase](#microdbbase)
-  - [MicroDBDriver](#microdbdriver)
-  - [MicroDBFacade](#microdbfacade)
+  - [`MicroDB`](#microdb)
+  - [`MicroDBBase`](#microdbbase)
+  - [`MicroDBDriver`](#microdbdriver)
+  - [`MicroDBFacade`](#microdbfacade)
 - [Constants](#default-options)
 - [Types](#types)
 
@@ -124,3 +142,39 @@ const defaultOptions: MicroDBOptions = {
 ```
 
 ## Types
+
+### `MicroDBOptions`
+
+| property       | type                                      |
+| -------------- | ----------------------------------------- |
+| fileName       | `string`                                  |
+| defaultData    | `MicroDBData \| undefined`                |
+| serializer     | [`MicroDBSerializer`](#microdbserializer) |
+| janitorCronjob | `string \| undefined`                     |
+
+### `MicroDBSerializer `
+
+| method          | type                                                |
+| --------------- | --------------------------------------------------- |
+| serializeObject | `(key: string, value: any) => string`               |
+| serializeAll    | `(data: `[`MicroDBData`](#microdbdata)`) => string` |
+| deserialize     | `(raw: string) => MicroDBData`                      |
+
+### `MicroDBData`
+
+Type: `Record<string, any>`
+
+### `WherePredicate<T>`
+
+Type: ` (object: T) => boolean`
+
+### `Mutation<A, B>`
+
+Type: `(object: A) => B`
+
+### `MicroDBEntry<T>`
+
+| property | type     |
+| -------- | -------- |
+| id       | `string` |
+| value    | `T`      |
