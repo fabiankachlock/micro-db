@@ -3,15 +3,13 @@ import { MicroDBDriver } from './driver';
 import { MicroDBJanitor } from './janitor';
 import { MicroDBOptions } from './micro-db';
 
-export const MicroDB = {
-	new: (options: Partial<MicroDBOptions>) => new MicroDBDriver(options),
+export class MicroDB<T> extends MicroDBDriver<T> {
+	static table = <T>(options: Partial<MicroDBOptions>) => new MicroDBDriver<T>(options);
 
-	table: (options: Partial<MicroDBOptions>) => new MicroDBDriver(options),
+	static database = (options: Partial<MicroDBOptions>) => new MicroDBBase(options);
 
-	database: (options: Partial<MicroDBOptions>) => new MicroDBBase(options),
-
-	janitor: (cron: string, ...dbs: MicroDBBase[]) => new MicroDBJanitor(cron, ...dbs),
-};
+	static janitor = (cron: string, ...dbs: MicroDBBase[]) => new MicroDBJanitor(cron, ...dbs);
+}
 
 export { MicroDBMS } from './dbms';
 export { MicroDBFacade } from './facade';

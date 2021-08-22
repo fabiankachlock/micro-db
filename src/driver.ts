@@ -14,7 +14,7 @@ export class MicroDBDriver<T> {
 
 	readonly janitor: MicroDBJanitor | undefined = undefined;
 
-	constructor(options: Partial<MicroDBOptions>) {
+	constructor(options: Partial<MicroDBOptions> = {}) {
 		this.db = new MicroDBBase({
 			...options,
 			janitorCronjob: undefined,

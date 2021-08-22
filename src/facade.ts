@@ -21,7 +21,7 @@ export class MicroDBFacade<T extends MicroDBData> {
 
 	protected data: MicroDBData;
 
-	constructor(options: Partial<MicroDBOptions>) {
+	constructor(options: Partial<MicroDBOptions> = {}) {
 		const db = new MicroDBBase({
 			...options,
 			janitorCronjob: undefined,

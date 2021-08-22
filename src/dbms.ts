@@ -27,7 +27,7 @@ export class MicroDBMS {
 		}
 	};
 
-	static table = <T>(name: string, extraOptions: Partial<MicroDBOptions>): MicroDBDriver<T> => {
+	static table = <T>(name: string, extraOptions: Partial<MicroDBOptions> = {}): MicroDBDriver<T> => {
 		if (name in MicroDBMS.tables) {
 			throw new Error(`Table ${name} already exists!`);
 		}
