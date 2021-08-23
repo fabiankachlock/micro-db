@@ -17,27 +17,46 @@ export class JSONSerializer implements MicroDBSerializer {
 	deserialize = (raw: string) => {
 		const rows = raw.split('\n');
 		const pairs = rows.map(entry => {
-			const index = entry.indexOf(':');
-			const [key, value] = [entry.substring(0, index), entry.substring(index + 1, entry.length)];
+			// invalid line
+			if (entry.length === 0) return undefined;
 
-			if (key)
-				return {
-					key,
-					value: value ? JSON.parse(value) : undefined,
-				};
-			else return undefined;
+			// split key from data
+			const index = entry.indexOf(':');
+			if (index === -1) return undefined; // invalid format: no seperator
+
+			// define parts
+			const [key, value] = [entry.substring(0, index), entry.substring(index + 1, entry.length)];
+			// invalid key or value
+			if (key.length === 0 || value.length === 0) return undefined;
+
+			let json;
+			if (value !== 'undefined') {
+				try {
+					// try parsing json ('null' parses as null)
+					json = JSON.parse(value);
+				} catch {
+					json = undefined;
+				}
+			}
+
+			return {
+				key,
+				value: json,
+			};
 		});
 
-		return pairs
-			.filter(e => e !== undefined)
-			.reduce((prev, curr) => {
-				if (curr && curr.value) {
-					prev[curr?.key || 'no-index'] = curr?.value;
-				} else {
-					// undefined data means record got deleted
-					delete prev[curr?.key || 'no-index'];
-				}
-				return prev;
-			}, {} as MicroDBData);
+		// filter invalid records
+		const validPairs = pairs.filter(e => e !== undefined) as { key: string; value: any }[];
+
+		return validPairs.reduce((prev, curr) => {
+			if (curr && curr.value !== undefined) {
+				// set new data for key
+				prev[curr.key] = curr.value;
+			} else {
+				// undefined data means record got deleted
+				delete prev[curr.key];
+			}
+			return prev;
+		}, {} as MicroDBData);
 	};
 }

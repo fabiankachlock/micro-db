@@ -12,7 +12,9 @@
   "private": false,
   "scripts": {
     "build": "tsc",
-    "test": "jest --config jestconfig.json --watch",
+    "test": "jest --config jestconfig.json",
+    "test:watch": "jest --config jestconfig.json --watch",
+    "test:coverage": "jest --config jestconfig.json --coverage",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "prepare": "yarn build",
