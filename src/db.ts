@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import path from 'path';
 import { MicroDBJanitor } from './janitor';
 import type { MicroDBData, MicroDBOptions, MicroDBSerializer } from './micro-db';
 import { JSONSerializer } from './serializer/JSONSerializer';
@@ -8,6 +9,14 @@ const defaultOptions: MicroDBOptions = {
 	serializer: new JSONSerializer(),
 	janitorCronjob: undefined,
 	defaultData: undefined,
+};
+
+const ensureDirectoryExistence = (filePath: string) => {
+	const dirname = path.dirname(filePath);
+	if (fs.existsSync(dirname)) {
+		return true;
+	}
+	fs.mkdirSync(dirname, { recursive: true });
 };
 
 export class MicroDBBase {
@@ -35,6 +44,8 @@ export class MicroDBBase {
 
 		// create database file if needed
 		if (!fs.existsSync(this.fileName)) {
+			ensureDirectoryExistence(this.fileName);
+
 			fs.openSync(this.fileName, 'w');
 			newFileCreated = true;
 		}

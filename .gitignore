@@ -61,3 +61,5 @@ dist
 .DS_Store
 
 lib
+
+_fs-tests

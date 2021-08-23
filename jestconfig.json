@@ -3,5 +3,5 @@
     "^.+\\.ts?$": "ts-jest"
   },
   "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
-  "moduleFileExtensions": ["ts", "json", "node"]
+  "moduleFileExtensions": ["ts", "js", "json", "node"]
 }

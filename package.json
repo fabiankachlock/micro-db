@@ -12,7 +12,7 @@
   "private": false,
   "scripts": {
     "build": "tsc",
-    "test": "jest --config jestconfig.json",
+    "test": "jest --config jestconfig.json --watch",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "prepare": "yarn build",
@@ -22,8 +22,10 @@
     "postversion": "git push && git push --tags"
   },
   "lint-staged": {
-    "src/**/*.ts": [
-      "yarn lint",
+    "src/**/!(*test).ts": [
+      "yarn lint"
+    ],
+		"src/**/*.ts": [
       "yarn format"
     ]
   },
