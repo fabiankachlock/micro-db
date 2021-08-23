@@ -3,6 +3,9 @@
 	"rules": {
 		"jsdoc-format": {
 			"severity": "off"
+		},
+		"no-empty": {
+			"severity": "off"
 		}
 	}
 }

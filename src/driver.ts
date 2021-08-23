@@ -25,6 +25,17 @@ export class MicroDBDriver<T> {
 		}
 	}
 
+	static forDatabase = <T>(db: MicroDBBase): MicroDBDriver<T> => {
+		const driver = new MicroDBDriver<T>({});
+
+		driver.shutdown();
+		driver.janitor?.kill();
+		driver.db = db;
+		driver._data = db.read();
+
+		return driver;
+	};
+
 	get data(): Record<string, T> {
 		return this._data;
 	}
