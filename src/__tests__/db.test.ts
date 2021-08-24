@@ -28,11 +28,9 @@ describe('micro-db/DBBase tests', () => {
 		db.write('abc', data);
 
 		await new Promise(resolve => {
-			setTimeout(() => {
-				expect(fs.readFileSync(dbPath).toString()).toEqual(serializer.serializeObject('abc', data));
-				resolve({});
-			}, 100);
+			setTimeout(resolve, 150);
 		});
+		expect(fs.readFileSync(dbPath).toString()).toEqual(serializer.serializeObject('abc', data));
 	});
 
 	it('should batch write data correct', async () => {
@@ -49,26 +47,86 @@ describe('micro-db/DBBase tests', () => {
 		db.writeBatch(data);
 
 		await new Promise(resolve => {
-			setTimeout(() => {
-				expect(fs.readFileSync(dbPath).toString()).toEqual(serializer.serializeAll(data));
-				resolve({});
-			}, 100);
+			setTimeout(resolve, 150);
 		});
+		expect(fs.readFileSync(dbPath).toString()).toEqual(serializer.serializeAll(data));
 	});
 
-	// it('should overwrite correct', () => {
-	// 	expect(false).toBeTruthy();
-	// });
+	it('should overwrite correct', () => {
+		const data0 = {
+			someString: 'abc',
+		};
 
-	// it('should close without errors', () => {
-	// 	expect(false).toBeTruthy();
-	// });
+		// write initial data
+		db.write('id', data0);
+		expect(db.read()).toEqual({ id: data0 });
 
-	// it('should setup janitor correct', () => {
-	// 	expect(false).toBeTruthy();
-	// });
+		const data1 = {
+			someString: 'def',
+		};
 
-	// it('should setup initial data correct', () => {
-	// 	expect(false).toBeTruthy();
-	// });
+		// overwrite initial data
+		db.write('id', data1);
+		expect(db.read()).toEqual({ id: data1 });
+	});
+
+	it('should delete correct', () => {
+		const data = {
+			someString: 'abc',
+		};
+
+		// write initial data
+		db.write('id', data);
+		expect(db.read()).toEqual({ id: data });
+
+		// delete initial data
+		db.write('id', undefined);
+		expect(db.read()).toEqual({});
+	});
+
+	it('should close without errors', () => {
+		expect(() => {
+			db.close();
+		}).not.toThrow();
+	});
+
+	it('should setup initial data correct', async () => {
+		const initialData = {
+			id1: {
+				test: true,
+			},
+		};
+
+		const dataDB = new MicroDBBase({
+			defaultData: initialData,
+			fileName: path.join('_db-tests', 'test-default-data.db'),
+		});
+
+		expect(dataDB.read()).toEqual(initialData);
+
+		await new Promise(resolve => {
+			setTimeout(resolve, 150);
+		});
+
+		const stored = fs.readFileSync(path.join('_db-tests', 'test-default-data.db')).toString();
+		expect(stored).toEqual(serializer.serializeAll(initialData));
+	});
+
+	it('should read data correct', () => {
+		const initialData = {
+			id1: {
+				test: true,
+			},
+		};
+
+		const serialized = serializer.serializeAll(initialData);
+
+		fs.writeFileSync(path.join('_db-tests', 'test-read.db'), serialized);
+
+		const dataDB = new MicroDBBase({
+			fileName: path.join('_db-tests', 'test-read.db'),
+		});
+
+		expect(dataDB.read()).toEqual(initialData);
+	});
 });
