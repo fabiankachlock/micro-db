@@ -1,8 +1,5 @@
-name: test-coverage
-on:
-  push:
-    branches:
-      - main
+name: test-coverage-manuel
+on: workflow_dispatch
 jobs:
   coverage:
     name: coverage
