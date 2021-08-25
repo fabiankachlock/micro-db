@@ -83,6 +83,24 @@ describe('micro-db/DBBase tests', () => {
 		expect(db.read()).toEqual({});
 	});
 
+	it('should batch delete correct', () => {
+		const data = {
+			id: {
+				someString: 'abc',
+			},
+		};
+
+		// write initial data
+		db.writeBatch(data);
+		expect(db.read()).toEqual(data);
+
+		// delete initial data
+		db.writeBatch({
+			id: undefined,
+		});
+		expect(db.read()).toEqual({});
+	});
+
 	it('should close without errors', () => {
 		expect(() => {
 			db.close();
