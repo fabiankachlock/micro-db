@@ -3,6 +3,7 @@ import path from 'path';
 import { MicroDBJanitor } from './janitor';
 import type { MicroDBData, MicroDBOptions, MicroDBSerializer } from './micro-db';
 import { JSONSerializer } from './serializer/JSONSerializer';
+import { MicroDBWatchable } from './watcher/watchable';
 
 const defaultOptions: MicroDBOptions = {
 	fileName: 'micro.db',
@@ -19,7 +20,10 @@ const ensureDirectoryExistence = (filePath: string) => {
 	fs.mkdirSync(dirname, { recursive: true });
 };
 
-export class MicroDBBase {
+type ExtraArgument = {
+	base: MicroDBBase;
+};
+export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 	private writeStream: fs.WriteStream;
 
 	private currentData: MicroDBData;
@@ -30,7 +34,17 @@ export class MicroDBBase {
 
 	readonly janitor: MicroDBJanitor | undefined = undefined;
 
+	getCallbackArguments = (): ExtraArgument => ({
+		base: this,
+	});
+
+	getSubscriptionValue = (): MicroDBData => this.currentData;
+
+	onSubscriptionValueChange = (value: MicroDBData) => {};
+
 	constructor(options: Partial<MicroDBOptions> = {}) {
+		super();
+
 		const resolvedOptions = {
 			...defaultOptions,
 			...options,
@@ -83,6 +97,7 @@ export class MicroDBBase {
 			this.currentData[id] = data;
 		}
 		this.writeStream.write(this.dataSerializer.serializeObject(id, data));
+		this.onSubscriptionValueChange(this.currentData);
 	};
 
 	// store multiple new snapshots
@@ -93,6 +108,7 @@ export class MicroDBBase {
 			dataToWrite += this.dataSerializer.serializeObject(key, value);
 		}
 		this.writeStream.write(dataToWrite);
+		this.onSubscriptionValueChange(this.currentData);
 	};
 
 	// close write stream & kill janitor

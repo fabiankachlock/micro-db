@@ -36,20 +36,25 @@ export class MicroDBSubscriptionManager<ValueType, CallbackArguments extends {}>
 
 	registerWatcher = (
 		callback: MicroDBSubscriptionCallback<ValueType, CallbackArguments>,
-		options: MicroDBSubscriptionInitializer<ValueType> = defaultMicroDBSubscriptionInitializer
+		options: Partial<MicroDBSubscriptionInitializer<ValueType>> = {}
 	): MicroDBSubscription => {
 		const id = uuid();
 		const subscription = new MicroDBSubscription(id, () => this.deleteWatcher(id));
 
+		const resolvedOptions = {
+			...options,
+			...defaultMicroDBSubscriptionInitializer,
+		};
+
 		// store new watcher with options
 		this.watchers[id] = {
 			callback,
-			predicate: options.predicate,
+			predicate: resolvedOptions.predicate,
 			subscription,
 		};
 
 		// call, if specified in options
-		if (options.callImmidiate) {
+		if (resolvedOptions.callImmidiate) {
 			this.callWatcher(id, this.host.getSubscriptionValue());
 		}
 
