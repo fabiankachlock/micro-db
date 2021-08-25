@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
 import { JSONSerializer } from '../serializer/JSONSerializer';
+import { readFile, sleep } from './helper.test';
 
 describe('micro-db/DBBase tests', () => {
 	let db: MicroDBBase;
@@ -20,21 +21,20 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should write data correct', async () => {
-		expect(fs.readFileSync(dbPath).toString()).toEqual('');
+		expect(readFile(dbPath)).toEqual('');
 
 		const data = {
 			amIHere: 0,
 		};
 		db.write('abc', data);
 
-		await new Promise(resolve => {
-			setTimeout(resolve, 150);
-		});
-		expect(fs.readFileSync(dbPath).toString()).toEqual(serializer.serializeObject('abc', data));
+		await sleep(150);
+
+		expect(readFile(dbPath)).toEqual(serializer.serializeObject('abc', data));
 	});
 
 	it('should batch write data correct', async () => {
-		expect(fs.readFileSync(dbPath).toString()).toEqual('');
+		expect(readFile(dbPath)).toEqual('');
 
 		const data = {
 			id1: {
@@ -46,10 +46,9 @@ describe('micro-db/DBBase tests', () => {
 		};
 		db.writeBatch(data);
 
-		await new Promise(resolve => {
-			setTimeout(resolve, 150);
-		});
-		expect(fs.readFileSync(dbPath).toString()).toEqual(serializer.serializeAll(data));
+		await sleep(150);
+
+		expect(readFile(dbPath)).toEqual(serializer.serializeAll(data));
 	});
 
 	it('should overwrite correct', () => {
@@ -104,11 +103,9 @@ describe('micro-db/DBBase tests', () => {
 
 		expect(dataDB.read()).toEqual(initialData);
 
-		await new Promise(resolve => {
-			setTimeout(resolve, 150);
-		});
+		await sleep(150);
 
-		const stored = fs.readFileSync(path.join('_db-tests', 'test-default-data.db')).toString();
+		const stored = readFile(path.join('_db-tests', 'test-default-data.db'));
 		expect(stored).toEqual(serializer.serializeAll(initialData));
 	});
 
