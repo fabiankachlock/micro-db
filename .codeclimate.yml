@@ -1,0 +1,28 @@
+version: "2"         # required to adjust maintainability checks
+checks:
+  argument-count:
+    config:
+      threshold: 3
+  method-count:
+    config:
+      threshold: 30
+  return-statements:
+    config:
+      threshold: 3
+exclude_patterns:
+- "_*tests/"
+- ".github/"
+- ".husky/"
+- "coverage/"
+- "example/"
+- "**/node_modules/"
+- "lib"
+- "**/spec/"
+- "**/test/"
+- "**/tests/"
+- "**/__tests__"
+- "**/*.d.ts"
+- "**/*.js"
+- "**/*.json"
+- "**/*.yml"
+- "**/*.md"
