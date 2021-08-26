@@ -1,56 +1,61 @@
-import { MicroDBSubscriptionCallback, MicroDBSubscriptionInitializer } from './interface';
-import { MicroDBSubscription } from './subscription';
+import { SubscriptionCallback, SubscriptionOptions } from './interface';
+import { Subscription } from './subscription';
 import { v4 as uuid } from 'uuid';
 
 type Watcher<ValueType, CallbackArguments> = {
-	callback: MicroDBSubscriptionCallback<ValueType, CallbackArguments>; // watcher callback
+	callback: SubscriptionCallback<ValueType, CallbackArguments>; // watcher callback
 	predicate: (value: ValueType) => boolean; // call callback only when true
-	subscription: MicroDBSubscription; // reference to subscription Instance
+	subscription: Subscription; // reference to subscription Instance
 };
 
-const defaultMicroDBSubscriptionInitializer: MicroDBSubscriptionInitializer<unknown> = {
+const defaultSubscriptionOptions: SubscriptionOptions<unknown> = {
 	predicate: () => true,
 	callImmidiate: false,
 };
 
-export interface MicroDBSubscribeable<ValueType, CallbackArguments> {
-	subscriptionManager: MicroDBSubscriptionManager<ValueType, CallbackArguments>;
-	getSubscriptionValue(): ValueType;
-	getCallbackArguments(): CallbackArguments;
-	onSubscriptionValueChange: (value: ValueType) => void;
+export interface Subscribeable<Value, ExtraArguments> {
+	_subscriptionManager: SubscriptionManager<Value, ExtraArguments>;
+	_currentValue(): Value;
+	_getCallbackArguments(): ExtraArguments;
+	_onValueChange(handler: (value: Value) => void): void;
 }
 
-export class MicroDBSubscriptionManager<ValueType, CallbackArguments extends {}> {
+export class SubscriptionManager<Value, ExtraArguments extends {}> {
 	// all active watchers
-	private watchers: Record<string, Watcher<ValueType, CallbackArguments>> = {};
+	private watchers: Record<string, Watcher<Value, ExtraArguments>> = {};
 
-	constructor(private host: MicroDBSubscribeable<ValueType, CallbackArguments>) {
-		this.host.onSubscriptionValueChange = this.onValueChange;
+	constructor(private host: Subscribeable<Value, ExtraArguments>) {
+		host._onValueChange(this.onValueChange);
 	}
 
-	private onValueChange = (value: ValueType) => {
+	private onValueChange = (value: Value) => {
 		for (const watcherId of Object.keys(this.watchers)) {
 			this.callWatcher(watcherId, value);
 		}
 	};
 
 	registerWatcher = (
-		callback: MicroDBSubscriptionCallback<ValueType, CallbackArguments>,
-		options: MicroDBSubscriptionInitializer<ValueType> = defaultMicroDBSubscriptionInitializer
-	): MicroDBSubscription => {
+		callback: SubscriptionCallback<Value, ExtraArguments>,
+		options: Partial<SubscriptionOptions<Value>> = {}
+	): Subscription => {
 		const id = uuid();
-		const subscription = new MicroDBSubscription(id, () => this.deleteWatcher(id));
+		const subscription = new Subscription(id, () => this.deleteWatcher(id));
+
+		const resolvedOptions = {
+			...options,
+			...defaultSubscriptionOptions,
+		};
 
 		// store new watcher with options
 		this.watchers[id] = {
 			callback,
-			predicate: options.predicate,
+			predicate: resolvedOptions.predicate,
 			subscription,
 		};
 
 		// call, if specified in options
-		if (options.callImmidiate) {
-			this.callWatcher(id, this.host.getSubscriptionValue());
+		if (resolvedOptions.callImmidiate) {
+			this.callWatcher(id, this.host._currentValue());
 		}
 
 		return subscription;
@@ -67,9 +72,9 @@ export class MicroDBSubscriptionManager<ValueType, CallbackArguments extends {}>
 	};
 
 	// call the callback function of a watcher if predicate yields true
-	private callWatcher = (id: string, value: ValueType) => {
+	private callWatcher = (id: string, value: Value) => {
 		if (id in this.watchers && this.watchers[id].predicate(value)) {
-			this.watchers[id].callback(value, this.host.getCallbackArguments(), this.watchers[id].subscription);
+			this.watchers[id].callback(value, this.host._getCallbackArguments(), this.watchers[id].subscription);
 		}
 	};
 }

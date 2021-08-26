@@ -1,12 +1,12 @@
-import { MicroDBSubscription } from './subscription';
+import { Subscription } from './subscription';
 
-export type MicroDBSubscriptionCallback<ValueType, ExtraArguments> = (
-	value: ValueType,
+export type SubscriptionCallback<Value, ExtraArguments> = (
+	value: Value,
 	extraArguments: ExtraArguments,
-	subscription: MicroDBSubscription
+	subscription: Subscription
 ) => void;
 
-export type MicroDBSubscriptionInitializer<T> = {
+export type SubscriptionOptions<T> = {
 	predicate: (value: T) => boolean;
 	callImmidiate: boolean;
 };

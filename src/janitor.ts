@@ -1,10 +1,15 @@
 import { MicroDBBase } from './db';
 import { CronJob } from 'cron';
 import * as fs from 'fs/promises';
+import { MicroDBWatchable } from './watcher/watchable';
+
+type ExtraArgument = {
+	janitor: MicroDBJanitor;
+};
 
 // The MicroDBJanitor cleans up data overhad and reduces database file size.
 // It can be used either as global instace for batching cleanups with registerDatabase & deleteDatabase or as db-personal instace
-export class MicroDBJanitor {
+export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	private job: CronJob;
 
 	private dbs: MicroDBBase[];
@@ -13,12 +18,22 @@ export class MicroDBJanitor {
 		return this.dbs;
 	}
 
+	_getCallbackArguments = (): ExtraArgument => ({
+		janitor: this,
+	});
+
+	_currentValue = (): {} => ({});
+
 	constructor(cron: string = '* * 0 * * *' /* every day at midnight */, ...dbs: MicroDBBase[]) {
+		super();
+
 		this.job = new CronJob(cron, this.cleanUpCallBack);
+		this.job.start();
 		this.dbs = dbs;
 	}
 
 	private cleanUpCallBack = async () => {
+		this.valueChanged({});
 		for (const db of this.dbs) {
 			this.cleanUp(db);
 		}
