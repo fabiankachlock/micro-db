@@ -28,7 +28,7 @@ export class MicroDBDriver<T> {
 	static forDatabase = <T>(db: MicroDBBase): MicroDBDriver<T> => {
 		const driver = new MicroDBDriver<T>({});
 
-		driver.shutdown();
+		driver.close();
 		driver.janitor?.kill();
 		driver.db = db;
 		driver._data = db.read();
@@ -36,12 +36,8 @@ export class MicroDBDriver<T> {
 		return driver;
 	};
 
-	get data(): Record<string, T> {
-		return { ...this._data };
-	}
-
 	// close db
-	shutdown = () => {
+	close = () => {
 		this.db.close();
 	};
 
@@ -55,12 +51,12 @@ export class MicroDBDriver<T> {
 
 	// select a record by db id
 	select = (id: string): T | undefined => {
-		return this.data[id];
+		return this._data[id];
 	};
 
 	// select first record that fulfill predicate
 	selectWhere = (pred: WherePredicate<T>): MicroDBEntry<T> | undefined => {
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				return {
 					id: key,
@@ -74,7 +70,7 @@ export class MicroDBDriver<T> {
 	// select all records that fulfill predicate
 	selectAllWhere = (pred: WherePredicate<T>): MicroDBEntry<T>[] => {
 		const objects: MicroDBEntry<T>[] = [];
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				objects.push({
 					id: key,
@@ -90,9 +86,9 @@ export class MicroDBDriver<T> {
 
 	// update a record
 	update = (id: string, object: Partial<T>): boolean => {
-		if (id in this.data) {
+		if (id in this._data) {
 			this.db.write(id, {
-				...this.data[id],
+				...this._data[id],
 				...object,
 			});
 			this._data = this.db.read();
@@ -103,10 +99,10 @@ export class MicroDBDriver<T> {
 
 	// update first record that fulfill predicate
 	updateWhere = (pred: WherePredicate<T>, object: Partial<T>): boolean => {
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				this.update(key, {
-					...this.data[key],
+					...this._data[key],
 					...object,
 				});
 				this._data = this.db.read();
@@ -119,10 +115,10 @@ export class MicroDBDriver<T> {
 	// update all records that fulfill predicate
 	updateAllWhere = (pred: WherePredicate<T>, object: Partial<T>) => {
 		const updates: MicroDBData = {};
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				updates[key] = {
-					...this.data[key],
+					...this._data[key],
 					...object,
 				};
 			}
@@ -133,8 +129,8 @@ export class MicroDBDriver<T> {
 
 	// mutate a record
 	mutate = (id: string, mutation: Mutation<T, T>): boolean => {
-		if (id in this.data) {
-			const object = this.data[id];
+		if (id in this._data) {
+			const object = this._data[id];
 			this.db.write(id, mutation(object));
 			this._data = this.db.read();
 			return true;
@@ -144,9 +140,9 @@ export class MicroDBDriver<T> {
 
 	// mutate first record that fulfill predicate
 	mutateWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>): boolean => {
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
-				const object = this.data[key];
+				const object = this._data[key];
 				this.update(key, mutation(object));
 				this._data = this.db.read();
 				return true;
@@ -158,9 +154,9 @@ export class MicroDBDriver<T> {
 	// mutate all records that fulfill predicate
 	mutateAllWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>) => {
 		const updates: MicroDBData = {};
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
-				const object = this.data[key];
+				const object = this._data[key];
 				updates[key] = mutation(object);
 			}
 		}
@@ -170,7 +166,7 @@ export class MicroDBDriver<T> {
 
 	mutateAll = <B>(mutation: Mutation<T, B>) => {
 		const updates: MicroDBData = {};
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			updates[key] = mutation(value);
 		}
 		this.db.writeBatch(updates);
@@ -190,7 +186,7 @@ export class MicroDBDriver<T> {
 
 	// delete first record that fulfill predicate
 	deleteWhere = (pred: WherePredicate<T>): boolean => {
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				this.delete(key);
 				return true;
@@ -202,7 +198,7 @@ export class MicroDBDriver<T> {
 	// delete all records that fulfill predicate
 	deleteAllWhere = (pred: WherePredicate<T>) => {
 		const updates: MicroDBData = {};
-		for (const [key, value] of Object.entries(this.data)) {
+		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				updates[key] = undefined;
 			}
@@ -212,7 +208,4 @@ export class MicroDBDriver<T> {
 
 	// clear whole table
 	flush = () => this.deleteAllWhere(() => true);
-
-	// clean database file
-	cleanUp = () => this.janitor?.cleanUp(this.db);
 }

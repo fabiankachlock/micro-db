@@ -32,7 +32,7 @@ export class MicroDBFacade<T extends MicroDBData> {
 	}
 
 	// close db
-	public shutdown = () => this.ref.shutdown;
+	public close = () => this.ref.close;
 
 	// create a new record
 	protected create = (object: T): string => this.ref.create(object);

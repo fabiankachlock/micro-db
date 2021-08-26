@@ -46,7 +46,7 @@ export class MicroDBMS {
 		const driver = MicroDBMS.tables[name];
 
 		if (driver) {
-			driver.shutdown();
+			driver.close();
 			MicroDBMS.globalJanitor?.deleteDatabase(driver._dbRef);
 			delete MicroDBMS.tables[name];
 		}

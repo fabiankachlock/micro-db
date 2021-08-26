@@ -35,11 +35,11 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	private cleanUpCallBack = async () => {
 		this.valueChanged({});
 		for (const db of this.dbs) {
-			this.cleanUp(db);
+			MicroDBJanitor.cleanUp(db);
 		}
 	};
 
-	public cleanUp = async (db: MicroDBBase) => {
+	public static cleanUp = async (db: MicroDBBase) => {
 		const content = await fs.readFile(db.fileName);
 		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
 		await fs.writeFile(db.fileName, db.dataSerializer.serializeAll(data));
