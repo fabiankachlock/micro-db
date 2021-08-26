@@ -32,7 +32,7 @@ describe('micro-db/DBBase/watching tests', () => {
 
 		const spy = jest.fn(callback);
 
-		const sub = db.watch(spy);
+		const sub = db.$watch(spy);
 
 		db.writeBatch(data);
 

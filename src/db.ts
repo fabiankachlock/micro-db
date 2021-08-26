@@ -34,11 +34,11 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 
 	readonly janitor: MicroDBJanitor | undefined = undefined;
 
-	getCallbackArguments = (): ExtraArgument => ({
+	_getCallbackArguments = (): ExtraArgument => ({
 		base: this,
 	});
 
-	currentValue = (): MicroDBData => this.currentData;
+	_currentValue = (): MicroDBData => this.currentData;
 
 	constructor(options: Partial<MicroDBOptions> = {}) {
 		super();

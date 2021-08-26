@@ -14,10 +14,10 @@ const defaultSubscriptionOptions: SubscriptionOptions<unknown> = {
 };
 
 export interface Subscribeable<Value, ExtraArguments> {
-	subscriptionManager: SubscriptionManager<Value, ExtraArguments>;
-	currentValue(): Value;
-	getCallbackArguments(): ExtraArguments;
-	onValueChange(handler: (value: Value) => void): void;
+	_subscriptionManager: SubscriptionManager<Value, ExtraArguments>;
+	_currentValue(): Value;
+	_getCallbackArguments(): ExtraArguments;
+	_onValueChange(handler: (value: Value) => void): void;
 }
 
 export class SubscriptionManager<Value, ExtraArguments extends {}> {
@@ -25,7 +25,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 	private watchers: Record<string, Watcher<Value, ExtraArguments>> = {};
 
 	constructor(private host: Subscribeable<Value, ExtraArguments>) {
-		host.onValueChange(this.onValueChange);
+		host._onValueChange(this.onValueChange);
 	}
 
 	private onValueChange = (value: Value) => {
@@ -55,7 +55,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 
 		// call, if specified in options
 		if (resolvedOptions.callImmidiate) {
-			this.callWatcher(id, this.host.currentValue());
+			this.callWatcher(id, this.host._currentValue());
 		}
 
 		return subscription;
@@ -74,7 +74,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 	// call the callback function of a watcher if predicate yields true
 	private callWatcher = (id: string, value: Value) => {
 		if (id in this.watchers && this.watchers[id].predicate(value)) {
-			this.watchers[id].callback(value, this.host.getCallbackArguments(), this.watchers[id].subscription);
+			this.watchers[id].callback(value, this.host._getCallbackArguments(), this.watchers[id].subscription);
 		}
 	};
 }

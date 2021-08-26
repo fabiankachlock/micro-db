@@ -4,18 +4,18 @@ import { Subscribeable, SubscriptionManager } from './subscriptionManager';
 export abstract class MicroDBWatchable<ValueType, CallbackArguments>
 	implements Subscribeable<ValueType, CallbackArguments>
 {
-	subscriptionManager: SubscriptionManager<ValueType, CallbackArguments>;
+	_subscriptionManager: SubscriptionManager<ValueType, CallbackArguments>;
 
 	constructor() {
-		this.subscriptionManager = new SubscriptionManager(this);
+		this._subscriptionManager = new SubscriptionManager(this);
 	}
 
-	abstract currentValue(): ValueType;
-	abstract getCallbackArguments(): CallbackArguments;
+	abstract _currentValue(): ValueType;
+	abstract _getCallbackArguments(): CallbackArguments;
 
 	protected handlers: ((value: ValueType) => void)[] = [];
 
-	onValueChange = (handler: (value: ValueType) => void) => {
+	_onValueChange = (handler: (value: ValueType) => void) => {
 		this.handlers.push(handler);
 	};
 
@@ -25,19 +25,19 @@ export abstract class MicroDBWatchable<ValueType, CallbackArguments>
 		}
 	};
 
-	watch = (
+	$watch = (
 		callback: SubscriptionCallback<ValueType, CallbackArguments>,
 		options: Partial<SubscriptionOptions<ValueType>> = {}
 	) => {
-		return this.subscriptionManager.registerWatcher(callback, options);
+		return this._subscriptionManager.registerWatcher(callback, options);
 	};
 
-	watchNext = (
+	$watchNext = (
 		callback: SubscriptionCallback<ValueType, CallbackArguments>,
 		options: Partial<SubscriptionOptions<ValueType>> = {}
 	) => {
 		let callCount = 0;
-		return this.subscriptionManager.registerWatcher(callback, {
+		return this._subscriptionManager.registerWatcher(callback, {
 			...options,
 			predicate: value => {
 				callCount += 1;

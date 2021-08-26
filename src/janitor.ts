@@ -18,11 +18,11 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 		return this.dbs;
 	}
 
-	getCallbackArguments = (): ExtraArgument => ({
+	_getCallbackArguments = (): ExtraArgument => ({
 		janitor: this,
 	});
 
-	currentValue = (): {} => ({});
+	_currentValue = (): {} => ({});
 
 	constructor(cron: string = '* * 0 * * *' /* every day at midnight */, ...dbs: MicroDBBase[]) {
 		super();
