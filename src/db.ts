@@ -97,7 +97,7 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 			this.currentData[id] = data;
 		}
 		this.writeStream.write(this.dataSerializer.serializeObject(id, data));
-		this.valueChanged(this.currentData);
+		this.valueChanged();
 	};
 
 	// store multiple new snapshots
@@ -112,7 +112,7 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 			dataToWrite += this.dataSerializer.serializeObject(key, value);
 		}
 		this.writeStream.write(dataToWrite);
-		this.valueChanged(this.currentData);
+		this.valueChanged();
 	};
 
 	// close write stream & kill janitor

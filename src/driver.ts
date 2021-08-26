@@ -60,7 +60,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		const id = uuid();
 		this.db.write(id, object);
 		this._data = this.db.read();
-		this.valueChanged(this._data);
+		this.valueChanged();
 		return id;
 	};
 
@@ -107,7 +107,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 				...object,
 			});
 			this._data = this.db.read();
-			this.valueChanged(this._data);
+			this.valueChanged();
 			return true;
 		}
 		return false;
@@ -139,7 +139,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		}
 		this.db.writeBatch(updates);
 		this._data = this.db.read();
-		if (updateCount > 0) this.valueChanged(this._data);
+		if (updateCount > 0) this.valueChanged();
 	};
 
 	// mutate a record
@@ -148,7 +148,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 			const object = this._data[id];
 			this.db.write(id, mutation(object));
 			this._data = this.db.read();
-			this.valueChanged(this._data);
+			this.valueChanged();
 			return true;
 		}
 		return false;
@@ -178,7 +178,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		}
 		this.db.writeBatch(updates);
 		this._data = this.db.read();
-		if (updateCount > 0) this.valueChanged(this._data);
+		if (updateCount > 0) this.valueChanged();
 	};
 
 	mutateAll = <B>(mutation: Mutation<T, B>) => {
@@ -188,7 +188,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		}
 		this.db.writeBatch(updates);
 		this._data = this.db.read();
-		this.valueChanged(this._data);
+		this.valueChanged();
 		// force clean db, because file size could double
 		MicroDBJanitor.cleanUp(this._dbRef);
 	};
@@ -203,7 +203,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		if (exists) {
 			this.db.write(id, undefined);
 			this._data = this.db.read();
-			this.valueChanged(this._data);
+			this.valueChanged();
 		}
 	};
 
@@ -230,7 +230,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 			}
 		}
 		this.db.writeBatch(updates);
-		if (updateCount > 0) this.valueChanged(this._data);
+		if (updateCount > 0) this.valueChanged();
 	};
 
 	// clear whole table

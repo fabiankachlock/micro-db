@@ -2,9 +2,9 @@ import { SubscriptionCallback, SubscriptionOptions } from './interface';
 import { Subscription } from './subscription';
 import { v4 as uuid } from 'uuid';
 
-type Watcher<ValueType, CallbackArguments> = {
-	callback: SubscriptionCallback<ValueType, CallbackArguments>; // watcher callback
-	predicate: (value: ValueType) => boolean; // call callback only when true
+type Watcher<Value, CallbackArguments> = {
+	callback: SubscriptionCallback<Value, CallbackArguments>; // watcher callback
+	predicate: (newValue: Value, lastValue: Value) => boolean; // call callback only when true
 	subscription: Subscription; // reference to subscription Instance
 };
 
@@ -17,21 +17,26 @@ export interface Subscribeable<Value, ExtraArguments> {
 	_subscriptionManager: SubscriptionManager<Value, ExtraArguments>;
 	_currentValue(): Value;
 	_getCallbackArguments(): ExtraArguments;
-	_onValueChange(handler: (value: Value) => void): void;
+	_onValueChange(handler: () => void): void;
 }
 
 export class SubscriptionManager<Value, ExtraArguments extends {}> {
 	// all active watchers
 	private watchers: Record<string, Watcher<Value, ExtraArguments>> = {};
 
+	private lastValue: Value;
+
 	constructor(private host: Subscribeable<Value, ExtraArguments>) {
 		host._onValueChange(this.onValueChange);
+		this.lastValue = host._currentValue();
 	}
 
-	private onValueChange = (value: Value) => {
+	private onValueChange = () => {
+		const newValue = this.host._currentValue();
 		for (const watcherId of Object.keys(this.watchers)) {
-			this.callWatcher(watcherId, value);
+			this.callWatcher(watcherId, newValue, this.lastValue);
 		}
+		this.lastValue = newValue;
 	};
 
 	registerWatcher = (
@@ -55,7 +60,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 
 		// call, if specified in options
 		if (resolvedOptions.callImmidiate) {
-			this.callWatcher(id, this.host._currentValue());
+			this.callWatcher(id, this.lastValue, this.lastValue);
 		}
 
 		return subscription;
@@ -72,8 +77,8 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 	};
 
 	// call the callback function of a watcher if predicate yields true
-	private callWatcher = (id: string, value: Value) => {
-		if (id in this.watchers && this.watchers[id].predicate(value)) {
+	private callWatcher = (id: string, value: Value, lastValue: Value) => {
+		if (id in this.watchers && this.watchers[id].predicate(value, lastValue)) {
 			this.watchers[id].callback(value, this.host._getCallbackArguments(), this.watchers[id].subscription);
 		}
 	};

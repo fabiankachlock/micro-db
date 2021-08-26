@@ -33,7 +33,7 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	}
 
 	private cleanUpCallBack = async () => {
-		this.valueChanged({});
+		this.valueChanged();
 		for (const db of this.dbs) {
 			MicroDBJanitor.cleanUp(db);
 		}

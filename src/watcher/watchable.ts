@@ -13,15 +13,15 @@ export abstract class MicroDBWatchable<ValueType, CallbackArguments>
 	abstract _currentValue(): ValueType;
 	abstract _getCallbackArguments(): CallbackArguments;
 
-	protected handlers: ((value: ValueType) => void)[] = [];
+	protected handlers: (() => void)[] = [];
 
-	_onValueChange = (handler: (value: ValueType) => void) => {
+	_onValueChange = (handler: () => void) => {
 		this.handlers.push(handler);
 	};
 
-	protected valueChanged = (value: ValueType) => {
+	protected valueChanged = () => {
 		for (const handler of this.handlers) {
-			handler(value);
+			handler();
 		}
 	};
 
@@ -36,13 +36,27 @@ export abstract class MicroDBWatchable<ValueType, CallbackArguments>
 		callback: SubscriptionCallback<ValueType, CallbackArguments>,
 		options: Partial<SubscriptionOptions<ValueType>> = {}
 	) => {
-		let callCount = 0;
-		return this._subscriptionManager.registerWatcher(callback, {
+		// init as not called
+		let called = false;
+
+		const subscription = this._subscriptionManager.registerWatcher(callback, {
 			...options,
 			predicate: value => {
-				callCount += 1;
-				return callCount < 2 && options.predicate ? options.predicate(value) : true;
+				const allowed = options.predicate ? options.predicate(value) : true;
+
+				if (allowed) {
+					if (called) {
+						// destroy subscription when its called
+						subscription.destroy();
+						return false;
+					}
+					// only set called when its acually allowed
+					called = true;
+				}
+				return allowed;
 			},
 		});
+
+		return subscription;
 	};
 }
