@@ -1,21 +1,21 @@
-import { MicroDBSubscriptionCallback, MicroDBSubscriptionInitializer } from './interface';
-import { MicroDBSubscribeable, MicroDBSubscriptionManager } from './subscriptionManager';
+import { SubscriptionCallback, SubscriptionOptions } from './interface';
+import { Subscribeable, SubscriptionManager } from './subscriptionManager';
 
 export abstract class MicroDBWatchable<ValueType, CallbackArguments>
-	implements MicroDBSubscribeable<ValueType, CallbackArguments>
+	implements Subscribeable<ValueType, CallbackArguments>
 {
-	subscriptionManager: MicroDBSubscriptionManager<ValueType, CallbackArguments>;
+	subscriptionManager: SubscriptionManager<ValueType, CallbackArguments>;
 
 	constructor() {
-		this.subscriptionManager = new MicroDBSubscriptionManager(this);
+		this.subscriptionManager = new SubscriptionManager(this);
 	}
 
-	abstract getSubscriptionValue(): ValueType;
+	abstract currentValue(): ValueType;
 	abstract getCallbackArguments(): CallbackArguments;
 
 	protected handlers: ((value: ValueType) => void)[] = [];
 
-	onSubscriptionValueChange = (handler: (value: ValueType) => void) => {
+	onValueChange = (handler: (value: ValueType) => void) => {
 		this.handlers.push(handler);
 	};
 
@@ -26,15 +26,15 @@ export abstract class MicroDBWatchable<ValueType, CallbackArguments>
 	};
 
 	watch = (
-		callback: MicroDBSubscriptionCallback<ValueType, CallbackArguments>,
-		options: Partial<MicroDBSubscriptionInitializer<ValueType>> = {}
+		callback: SubscriptionCallback<ValueType, CallbackArguments>,
+		options: Partial<SubscriptionOptions<ValueType>> = {}
 	) => {
 		return this.subscriptionManager.registerWatcher(callback, options);
 	};
 
 	watchNext = (
-		callback: MicroDBSubscriptionCallback<ValueType, CallbackArguments>,
-		options: Partial<MicroDBSubscriptionInitializer<ValueType>> = {}
+		callback: SubscriptionCallback<ValueType, CallbackArguments>,
+		options: Partial<SubscriptionOptions<ValueType>> = {}
 	) => {
 		let callCount = 0;
 		return this.subscriptionManager.registerWatcher(callback, {

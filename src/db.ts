@@ -38,7 +38,7 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 		base: this,
 	});
 
-	getSubscriptionValue = (): MicroDBData => this.currentData;
+	currentValue = (): MicroDBData => this.currentData;
 
 	constructor(options: Partial<MicroDBOptions> = {}) {
 		super();

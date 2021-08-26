@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
 import { MicroDBData } from '../micro-db';
-import { MicroDBSubscriptionCallback } from '../watcher/interface';
+import { SubscriptionCallback } from '../watcher/interface';
 
 describe('micro-db/DBBase/watching tests', () => {
 	const dbPath = path.join('_db-watching-tests', 'test.db');
@@ -22,7 +22,7 @@ describe('micro-db/DBBase/watching tests', () => {
 			},
 		};
 
-		const callback: MicroDBSubscriptionCallback<MicroDBData, { base: MicroDBBase }> = (value, extra, subscription) => {
+		const callback: SubscriptionCallback<MicroDBData, { base: MicroDBBase }> = (value, extra, subscription) => {
 			expect(value).toEqual(data);
 			expect(extra).toEqual({
 				base: db,
