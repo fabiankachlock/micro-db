@@ -12,21 +12,13 @@ const defaultOptions: MicroDBOptions = {
 	defaultData: undefined,
 };
 
-const ensureDirectoryExistence = (filePath: string) => {
-	const dirname = path.dirname(filePath);
-	if (fs.existsSync(dirname)) {
-		return true;
-	}
-	fs.mkdirSync(dirname, { recursive: true });
-};
-
 type ExtraArgument = {
 	base: MicroDBBase;
 };
 export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 	private writeStream: fs.WriteStream;
 
-	private currentData: MicroDBData;
+	private currentData: MicroDBData = {};
 
 	readonly fileName: string;
 
@@ -51,23 +43,8 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 		this.fileName = resolvedOptions.fileName;
 		this.dataSerializer = resolvedOptions.serializer;
 
-		let newFileCreated = false;
-		this.currentData = {};
-
-		// create database file if needed
-		if (!fs.existsSync(this.fileName)) {
-			ensureDirectoryExistence(this.fileName);
-
-			fs.openSync(this.fileName, 'w');
-			newFileCreated = true;
-		}
-
-		// read initial data
-		if (!newFileCreated) {
-			const initialRawData = fs.readFileSync(this.fileName);
-			const initialData = this.dataSerializer.deserialize(initialRawData.toString());
-			this.currentData = initialData;
-		}
+		const newFileCreated = this.ensureDatabaseFile();
+		if (!newFileCreated) this.readRawData();
 
 		this.writeStream = fs.createWriteStream(this.fileName, { flags: 'a' });
 
@@ -81,6 +58,31 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 			this.janitor = new MicroDBJanitor(resolvedOptions.janitorCronjob, this);
 		}
 	}
+
+	private ensureDatabaseFile = (): boolean => {
+		// create database file if needed
+		if (!fs.existsSync(this.fileName)) {
+			this.ensureDirectoryExistence(this.fileName);
+
+			fs.openSync(this.fileName, 'w');
+			return true;
+		}
+		return false;
+	};
+
+	private ensureDirectoryExistence = (filePath: string) => {
+		const dirname = path.dirname(filePath);
+		if (fs.existsSync(dirname)) {
+			return true;
+		}
+		fs.mkdirSync(dirname, { recursive: true });
+	};
+
+	private readRawData = () => {
+		const initialRawData = fs.readFileSync(this.fileName);
+		const initialData = this.dataSerializer.deserialize(initialRawData.toString());
+		this.currentData = initialData;
+	};
 
 	// return current data
 	read = (): MicroDBData => {

@@ -37,7 +37,7 @@ export class MicroDBDriver<T> {
 	};
 
 	get data(): Record<string, T> {
-		return this._data;
+		return { ...this._data };
 	}
 
 	// close db
