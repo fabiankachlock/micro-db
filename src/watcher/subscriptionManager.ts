@@ -17,7 +17,7 @@ export interface MicroDBSubscribeable<ValueType, CallbackArguments> {
 	subscriptionManager: MicroDBSubscriptionManager<ValueType, CallbackArguments>;
 	getSubscriptionValue(): ValueType;
 	getCallbackArguments(): CallbackArguments;
-	onSubscriptionValueChange: (value: ValueType) => void;
+	onSubscriptionValueChange(handler: (value: ValueType) => void): void;
 }
 
 export class MicroDBSubscriptionManager<ValueType, CallbackArguments extends {}> {
@@ -25,7 +25,7 @@ export class MicroDBSubscriptionManager<ValueType, CallbackArguments extends {}>
 	private watchers: Record<string, Watcher<ValueType, CallbackArguments>> = {};
 
 	constructor(private host: MicroDBSubscribeable<ValueType, CallbackArguments>) {
-		this.host.onSubscriptionValueChange = this.onValueChange;
+		host.onSubscriptionValueChange(this.onValueChange);
 	}
 
 	private onValueChange = (value: ValueType) => {

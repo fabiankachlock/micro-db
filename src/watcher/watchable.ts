@@ -4,11 +4,26 @@ import { MicroDBSubscribeable, MicroDBSubscriptionManager } from './subscription
 export abstract class MicroDBWatchable<ValueType, CallbackArguments>
 	implements MicroDBSubscribeable<ValueType, CallbackArguments>
 {
-	subscriptionManager: MicroDBSubscriptionManager<ValueType, CallbackArguments> = new MicroDBSubscriptionManager(this);
+	subscriptionManager: MicroDBSubscriptionManager<ValueType, CallbackArguments>;
+
+	constructor() {
+		this.subscriptionManager = new MicroDBSubscriptionManager(this);
+	}
 
 	abstract getSubscriptionValue(): ValueType;
 	abstract getCallbackArguments(): CallbackArguments;
-	abstract onSubscriptionValueChange: (value: ValueType) => void;
+
+	protected handlers: ((value: ValueType) => void)[] = [];
+
+	onSubscriptionValueChange = (handler: (value: ValueType) => void) => {
+		this.handlers.push(handler);
+	};
+
+	protected valueChanged = (value: ValueType) => {
+		for (const handler of this.handlers) {
+			handler(value);
+		}
+	};
 
 	watch = (
 		callback: MicroDBSubscriptionCallback<ValueType, CallbackArguments>,

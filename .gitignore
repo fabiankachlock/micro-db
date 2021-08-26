@@ -58,8 +58,15 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# macos files
 .DS_Store
 
+# compiled js
 lib
 
-_fs-tests
+# folders for db tests
+_*tests
+# unrealeased playground
+example
+# default db file
+micro.db

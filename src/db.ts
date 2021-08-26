@@ -40,8 +40,6 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 
 	getSubscriptionValue = (): MicroDBData => this.currentData;
 
-	onSubscriptionValueChange = (value: MicroDBData) => {};
-
 	constructor(options: Partial<MicroDBOptions> = {}) {
 		super();
 
@@ -97,7 +95,7 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 			this.currentData[id] = data;
 		}
 		this.writeStream.write(this.dataSerializer.serializeObject(id, data));
-		this.onSubscriptionValueChange(this.currentData);
+		this.valueChanged(this.currentData);
 	};
 
 	// store multiple new snapshots
@@ -108,7 +106,7 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 			dataToWrite += this.dataSerializer.serializeObject(key, value);
 		}
 		this.writeStream.write(dataToWrite);
-		this.onSubscriptionValueChange(this.currentData);
+		this.valueChanged(this.currentData);
 	};
 
 	// close write stream & kill janitor
