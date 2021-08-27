@@ -91,4 +91,36 @@ describe('micro-db/DBBase tests', () => {
 
 		expect(janitor.databases.length).toEqual(0);
 	});
+
+	it('should setup cronjob correctly', async () => {
+		const key = 'abc';
+		const data0 = {
+			test: 'someString',
+		};
+
+		const data1 = {
+			test: 'anotherString',
+			someNumber: 1,
+		};
+
+		db.write(key, data0);
+
+		await sleep(150);
+
+		expect(readFile(dbPath)).toEqual(serializer.serializeObject(key, data0));
+
+		db.write(key, data1);
+
+		await sleep(150);
+
+		expect(readFile(dbPath)).toEqual(serializer.serializeObject(key, data0) + serializer.serializeObject(key, data1));
+
+		const cronjobJanitor = new MicroDBJanitor('* * * * * *');
+		cronjobJanitor.registerDatabase(db);
+
+		await sleep(1250);
+
+		expect(readFile(dbPath)).toEqual(serializer.serializeObject(key, data1));
+		cronjobJanitor.kill();
+	});
 });

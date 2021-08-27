@@ -149,4 +149,21 @@ describe('micro-db/DBBase tests', () => {
 		expect(dataDB.read()).toEqual(initialData);
 		dataDB.close();
 	});
+
+	it('should create janitor correct', () => {
+		const janitorDb = new MicroDBBase({
+			fileName: path.join('_db-tests', 'janitor-test.db'),
+			janitorCronjob: '* * * * * *',
+		});
+
+		expect(janitorDb.janitor).toBeTruthy();
+		janitorDb.close();
+	});
+
+	it('should init with zero config', () => {
+		expect(() => {
+			const db = new MicroDBBase();
+			db.close();
+		}).not.toThrow();
+	});
 });
