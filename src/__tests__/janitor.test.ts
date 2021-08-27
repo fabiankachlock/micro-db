@@ -56,7 +56,7 @@ describe('micro-db/DBBase tests', () => {
 
 		expect(readFile(dbPath)).toEqual(serializer.serializeObject(key, data0) + serializer.serializeObject(key, data1));
 
-		janitor.cleanUp(db);
+		MicroDBJanitor.cleanUp(db);
 
 		await sleep(150);
 

@@ -143,5 +143,6 @@ describe('micro-db/DBBase tests', () => {
 		});
 
 		expect(dataDB.read()).toEqual(initialData);
+		dataDB.close();
 	});
 });

@@ -24,17 +24,16 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 	// all active watchers
 	private watchers: Record<string, Watcher<Value, ExtraArguments>> = {};
 
-	private lastValue: Value;
+	private lastValue: Value | undefined;
 
 	constructor(private host: Subscribeable<Value, ExtraArguments>) {
 		host._onValueChange(this.onValueChange);
-		this.lastValue = host._currentValue();
 	}
 
 	private onValueChange = () => {
 		const newValue = this.host._currentValue();
 		for (const watcherId of Object.keys(this.watchers)) {
-			this.callWatcher(watcherId, newValue, this.lastValue);
+			this.callWatcher(watcherId, newValue, this.lastValue || newValue);
 		}
 		this.lastValue = newValue;
 	};
@@ -59,7 +58,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 		};
 
 		// call, if specified in options
-		if (resolvedOptions.callImmidiate) {
+		if (resolvedOptions.callImmidiate && this.lastValue) {
 			this.callWatcher(id, this.lastValue, this.lastValue);
 		}
 

@@ -47,7 +47,7 @@ describe('micro-db/DBDriver tests', () => {
 	};
 
 	beforeEach(() => {
-		expect(driver.data).toEqual({});
+		expect(driver.selectAll()).toEqual([]);
 	});
 
 	afterEach(() => {
@@ -61,7 +61,12 @@ describe('micro-db/DBDriver tests', () => {
 		};
 		const id = driver.create(data);
 
-		expect(driver.data).toEqual({ [id]: data });
+		expect(driver.selectAll()).toEqual([
+			{
+				id: id,
+				value: data,
+			},
+		]);
 	});
 
 	it('should select correct', () => {
@@ -94,10 +99,10 @@ describe('micro-db/DBDriver tests', () => {
 			age: 0,
 		});
 
-		expect(Object.keys(driver.data).length).toBe(1);
+		expect(driver.selectAll().length).toBe(1);
 
 		driver.flush();
 
-		expect(driver.data).toEqual({});
+		expect(driver.selectAll()).toEqual([]);
 	});
 });

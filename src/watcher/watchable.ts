@@ -1,16 +1,14 @@
 import { SubscriptionCallback, SubscriptionOptions } from './interface';
 import { Subscribeable, SubscriptionManager } from './subscriptionManager';
 
-export abstract class MicroDBWatchable<ValueType, CallbackArguments>
-	implements Subscribeable<ValueType, CallbackArguments>
-{
-	_subscriptionManager: SubscriptionManager<ValueType, CallbackArguments>;
+export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subscribeable<Value, CallbackArguments> {
+	_subscriptionManager: SubscriptionManager<Value, CallbackArguments>;
 
 	constructor() {
 		this._subscriptionManager = new SubscriptionManager(this);
 	}
 
-	abstract _currentValue(): ValueType;
+	abstract _currentValue(): Value;
 	abstract _getCallbackArguments(): CallbackArguments;
 
 	protected handlers: (() => void)[] = [];
@@ -26,15 +24,15 @@ export abstract class MicroDBWatchable<ValueType, CallbackArguments>
 	};
 
 	$watch = (
-		callback: SubscriptionCallback<ValueType, CallbackArguments>,
-		options: Partial<SubscriptionOptions<ValueType>> = {}
+		callback: SubscriptionCallback<Value, CallbackArguments>,
+		options: Partial<SubscriptionOptions<Value>> = {}
 	) => {
 		return this._subscriptionManager.registerWatcher(callback, options);
 	};
 
 	$watchNext = (
-		callback: SubscriptionCallback<ValueType, CallbackArguments>,
-		options: Partial<SubscriptionOptions<ValueType>> = {}
+		callback: SubscriptionCallback<Value, CallbackArguments>,
+		options: Partial<SubscriptionOptions<Value>> = {}
 	) => {
 		// init as not called
 		let called = false;
