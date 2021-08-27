@@ -2,12 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
 import { JSONSerializer } from '../serializer/JSONSerializer';
-import { readFile, sleep } from './helper.test';
+import { readFile, setupTestDir, sleep, saveRemoveFolder } from './helper.test';
 
 describe('micro-db/DBBase tests', () => {
 	let db: MicroDBBase;
 	const serializer = new JSONSerializer();
 	const dbPath = path.join('_db-tests', 'test.db');
+
+	beforeAll(() => {
+		setupTestDir('_db-tests');
+	});
 
 	beforeEach(() => {
 		db = new MicroDBBase({
@@ -17,7 +21,7 @@ describe('micro-db/DBBase tests', () => {
 
 	afterEach(() => {
 		db.close();
-		fs.rmSync(path.join('_db-tests'), { recursive: true });
+		saveRemoveFolder('_db-tests');
 	});
 
 	it('should write data correct', async () => {

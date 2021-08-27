@@ -1,19 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
+import { saveRemoveFolder, setupTestDir } from './helper.test';
 
 const dir = '_fs-tests';
 
 describe('micro-db/filesystem tests', () => {
 	beforeAll(() => {
-		if (fs.existsSync(dir)) {
-			fs.rmSync(dir, { recursive: true });
-		}
-		fs.mkdirSync(dir);
+		setupTestDir(dir);
 	});
 
 	afterAll(() => {
-		fs.rmSync(dir, { recursive: true });
+		saveRemoveFolder(dir);
 	});
 
 	it('should create databse file if it doesnt exists', () => {

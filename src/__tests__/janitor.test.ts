@@ -3,7 +3,7 @@ import path from 'path';
 import { MicroDBBase } from '../db';
 import { MicroDBJanitor } from '../janitor';
 import { JSONSerializer } from '../serializer/JSONSerializer';
-import { readFile, sleep } from './helper.test';
+import { readFile, setupTestDir, sleep, saveRemoveFolder } from './helper.test';
 
 describe('micro-db/DBBase tests', () => {
 	let db: MicroDBBase;
@@ -11,6 +11,10 @@ describe('micro-db/DBBase tests', () => {
 	const janitor = new MicroDBJanitor();
 	let dbPath = '';
 	let id = 0;
+
+	beforeAll(() => {
+		setupTestDir('_janitor-tests');
+	});
 
 	beforeEach(() => {
 		dbPath = path.join('_janitor-tests', `test-${id}.db`);
@@ -31,6 +35,7 @@ describe('micro-db/DBBase tests', () => {
 
 	afterAll(() => {
 		janitor.kill();
+		saveRemoveFolder('_janitor-tests');
 	});
 
 	it('should clean data correctly', async () => {

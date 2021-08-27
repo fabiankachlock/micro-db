@@ -1,8 +1,17 @@
 import path from 'path';
 import { MicroDBDriver } from '../driver';
+import { setupTestDir, saveRemoveFolder } from './helper.test';
 
 describe('micro-db/DBDriver tests', () => {
 	const dbPath = path.join('_dbdriver-tests', 'test.db');
+
+	beforeAll(() => {
+		setupTestDir('_dbdriver-tests');
+	});
+
+	afterAll(() => {
+		saveRemoveFolder('_dbdriver-tests');
+	});
 
 	const driver = new MicroDBDriver<{
 		name: string;

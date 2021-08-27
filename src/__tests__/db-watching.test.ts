@@ -3,12 +3,17 @@ import path from 'path';
 import { MicroDBBase } from '../db';
 import { MicroDBData } from '../micro-db';
 import { SubscriptionCallback } from '../watcher/interface';
+import { setupTestDir, saveRemoveFolder } from './helper.test';
 
 describe('micro-db/DBBase/watching tests', () => {
 	const dbPath = path.join('_db-watching-tests', 'test.db');
 
+	beforeAll(() => {
+		setupTestDir('_db-watching-tests');
+	});
+
 	afterAll(() => {
-		fs.rmSync('_db-watching-tests', { recursive: true });
+		saveRemoveFolder('_db-watching-tests');
 	});
 
 	it('should notify subscriptions', () => {
