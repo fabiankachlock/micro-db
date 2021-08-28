@@ -3,11 +3,16 @@ import { v4 as uuid } from 'uuid';
 import { MicroDBBase } from './db';
 import { MicroDBJanitor } from './janitor';
 import { MicroDBWatchable } from './watcher/watchable';
-import { SubscriptionCallback, SubscriptionOptions } from './watcher/interface';
 
 type ExtraArgument<T> = {
 	driver: MicroDBDriver<T>;
 };
+
+// const defaultOptions: MicroDBDriverOptions = {
+// 	...MicroDBDefaultOptions,
+// 	injectId: false,
+// 	idKeyName: '_id',
+// };
 
 export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraArgument<T>> {
 	private _data: MicroDBData = {};
@@ -33,6 +38,11 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 			...options,
 			janitorCronjob: undefined,
 		});
+
+		// const resolvedOptions: MicroDBDriverOptions = {
+		// 	...defaultOptions,
+		// 	...options,
+		// };
 
 		if (options.janitorCronjob) {
 			this.janitor = new MicroDBJanitor(options.janitorCronjob, this.db);
@@ -65,8 +75,11 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	};
 
 	// select a record by db id
-	select = (id: string): T | undefined => {
-		return this._data[id];
+	select = (id: string): MicroDBEntry<T> | undefined => {
+		return {
+			...this._data[id],
+			_id: id,
+		};
 	};
 
 	// select first record that fulfill predicate
@@ -74,8 +87,8 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				return {
-					id: key,
-					value,
+					...value,
+					_id: key,
 				};
 			}
 		}
@@ -88,8 +101,8 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(value)) {
 				objects.push({
-					id: key,
-					value,
+					...value,
+					_id: key,
 				});
 			}
 		}

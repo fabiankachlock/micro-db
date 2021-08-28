@@ -23,6 +23,7 @@ describe('micro-db/DBDriver tests', () => {
 	let driverData: Record<
 		string,
 		{
+			_id: string;
 			name: string;
 			age: number;
 		}
@@ -47,11 +48,18 @@ describe('micro-db/DBDriver tests', () => {
 		},
 	];
 
+	let ids: string[] = [];
+
 	const initData = () => {
 		driverData = {};
+		ids = [];
 		for (const obj of _driverData) {
 			const id = driver.create(obj);
-			driverData[id] = obj;
+			ids.push(id);
+			driverData[id] = {
+				...obj,
+				_id: id,
+			};
 		}
 	};
 
@@ -72,8 +80,8 @@ describe('micro-db/DBDriver tests', () => {
 
 		expect(driver.selectAll()).toEqual([
 			{
-				id: id,
-				value: data,
+				_id: id,
+				...data,
 			},
 		]);
 	});
@@ -90,7 +98,7 @@ describe('micro-db/DBDriver tests', () => {
 		initData();
 
 		for (const [_, value] of Object.entries(driverData)) {
-			expect(driver.selectWhere(obj => obj.name === value.name)?.value).toEqual(value);
+			expect(driver.selectWhere(obj => obj.name === value.name)).toEqual(value);
 		}
 	});
 
@@ -99,7 +107,55 @@ describe('micro-db/DBDriver tests', () => {
 
 		const selected = driver.selectAllWhere(person => person.age < 30);
 
-		expect(selected.map(obj => obj.value)).toEqual(Object.values(driverData).filter(person => person.age < 30));
+		expect(selected).toEqual(Object.values(driverData).filter(person => person.age < 30));
+	});
+
+	it('should return all data', () => {
+		initData();
+
+		expect(driver.selectAll()).toEqual(Object.values(driverData));
+	});
+
+	it('should update correct', () => {
+		initData();
+		const id = ids[0];
+		const newName = 'newName';
+
+		driver.update(id, {
+			name: newName,
+		});
+
+		expect(driver.select(id)).toEqual({
+			...driverData[id],
+			name: newName,
+		});
+	});
+
+	it('should update where correct', () => {
+		initData();
+		const id = ids[0];
+		const newName = 'newName';
+		const oldName = driverData[id].name;
+
+		driver.updateWhere(user => user.name === oldName, {
+			name: newName,
+		});
+
+		expect(driver.select(id)).toEqual({
+			...driverData[id],
+			name: newName,
+		});
+	});
+
+	it('should delete correct', () => {
+		initData();
+
+		const id = ids[0];
+
+		driver.delete(id);
+
+		expect(driver.selectAll()).not.toContain(driverData[id]);
+		expect(driver.selectAll().length).toEqual(ids.length - 1);
 	});
 
 	it('should flush all data', () => {

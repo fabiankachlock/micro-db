@@ -5,7 +5,7 @@ import type { MicroDBData, MicroDBOptions, MicroDBSerializer } from './micro-db'
 import { JSONSerializer } from './serializer/JSONSerializer';
 import { MicroDBWatchable } from './watcher/watchable';
 
-const defaultOptions: MicroDBOptions = {
+export const MicroDBDefaultOptions: MicroDBOptions = {
 	fileName: 'micro.db',
 	serializer: new JSONSerializer(),
 	janitorCronjob: undefined,
@@ -36,7 +36,7 @@ export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
 		super();
 
 		const resolvedOptions = {
-			...defaultOptions,
+			...MicroDBDefaultOptions,
 			...options,
 		};
 
