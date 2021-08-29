@@ -66,7 +66,12 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 
 	// select a record by db id
 	select = (id: string): MicroDBEntry<T> | undefined => {
-		return withId(this._data[id], id);
+		const data = this._data[id];
+
+		if (data) {
+			return withId(data, id);
+		}
+		return undefined;
 	};
 
 	// select first record that fulfill predicate
