@@ -1,6 +1,7 @@
 import { MicroDBBase } from './db';
 import { CronJob } from 'cron';
 import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import { MicroDBWatchable } from './watcher/watchable';
 
 type ExtraArgument = {
@@ -43,6 +44,12 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 		const content = await fs.readFile(db.fileName);
 		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
 		await fs.writeFile(db.fileName, db.dataSerializer.serializeAll(data));
+	};
+
+	public static cleanUpSync = (db: MicroDBBase) => {
+		const content = fsSync.readFileSync(db.fileName);
+		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
+		fsSync.writeFileSync(db.fileName, db.dataSerializer.serializeAll(data));
 	};
 
 	public cleanAll = this.cleanUpCallBack;

@@ -191,7 +191,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		this._data = this.db.read();
 		this.valueChanged();
 		// force clean db, because file size could double
-		MicroDBJanitor.cleanUp(this._dbRef);
+		MicroDBJanitor.cleanUpSync(this._dbRef);
 	};
 
 	// delete a record

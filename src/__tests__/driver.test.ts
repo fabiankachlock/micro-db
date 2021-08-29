@@ -4,20 +4,21 @@ import { setupTestDir, saveRemoveFolder } from './helper.test';
 
 describe('micro-db/DBDriver tests', () => {
 	const dbPath = path.join('_dbdriver-tests', 'test.db');
+	let driver: MicroDBDriver<{
+		name: string;
+		age: number;
+	}>;
 
 	beforeAll(() => {
 		setupTestDir('_dbdriver-tests');
+		driver = new MicroDBDriver({
+			fileName: dbPath,
+		});
 	});
 
 	afterAll(() => {
 		saveRemoveFolder('_dbdriver-tests');
-	});
-
-	const driver = new MicroDBDriver<{
-		name: string;
-		age: number;
-	}>({
-		fileName: dbPath,
+		driver.close();
 	});
 
 	let driverData: Record<
@@ -181,12 +182,13 @@ describe('micro-db/DBDriver tests', () => {
 		it('should change nothing when id unknown', () => {
 			const before = driver.selectAll();
 
-			driver.update('some-id', {
+			const res = driver.update('some-id', {
 				name: 'not-goig-to-be-changed',
 			});
 
 			const after = driver.selectAll();
 			expect(before).toEqual(after);
+			expect(res).toBe(false);
 		});
 
 		it('should update where correct', () => {
@@ -203,6 +205,19 @@ describe('micro-db/DBDriver tests', () => {
 				...driverData[id],
 				name: newName,
 			});
+		});
+
+		it('should update nothing where correct', () => {
+			initData();
+			const before = driver.selectAll();
+			const res = driver.updateWhere(user => user._microdbId === 'some-id', {
+				name: 'my-name',
+			});
+
+			const after = driver.selectAll();
+
+			expect(res).toBe(false);
+			expect(before).toEqual(after);
 		});
 
 		it('should update all correct', () => {
@@ -226,14 +241,72 @@ describe('micro-db/DBDriver tests', () => {
 			initData();
 			const id = ids[0];
 			expect(driver.select(id)).toEqual(driverData[id]);
-			driver.mutate(id, obj => {
+			const res = driver.mutate(id, obj => {
 				obj.age = 123;
 				return obj;
 			});
+
+			expect(res).toBe(true);
 			expect(driver.select(id)).toEqual({
 				...driverData[id],
 				age: 123,
 			});
+		});
+
+		it('should mutate where correct', () => {
+			initData();
+			const id = ids[0];
+			expect(driver.select(id)).toEqual(driverData[id]);
+			const res = driver.mutateWhere(
+				entry => entry._microdbId === id,
+				obj => {
+					obj.age = 123;
+					return obj;
+				}
+			);
+
+			expect(res).toBe(true);
+			expect(driver.select(id)).toEqual({
+				...driverData[id],
+				age: 123,
+			});
+		});
+
+		it('should mutate all where correct', () => {
+			initData();
+
+			driver.mutateAllWhere(
+				entry => entry.age > 30,
+				obj => {
+					obj.age = 50;
+					return obj;
+				}
+			);
+			const data = driver.selectAll();
+			expect(data.length).toBeGreaterThan(0);
+
+			for (const obj of data) {
+				expect(obj).toEqual({
+					...driverData[obj._microdbId],
+					age: driverData[obj._microdbId].age > 30 ? 50 : driverData[obj._microdbId].age,
+				});
+			}
+		});
+
+		it('should mutate all where correct', () => {
+			initData();
+			driver.mutateAll(obj => {
+				obj.age += 10;
+				return obj;
+			});
+			const data = driver.selectAll();
+			expect(data.length).toBeGreaterThan(0);
+			for (const obj of data) {
+				expect(obj).toEqual({
+					...driverData[obj._microdbId],
+					age: driverData[obj._microdbId].age + 10,
+				});
+			}
 		});
 	});
 
@@ -247,6 +320,27 @@ describe('micro-db/DBDriver tests', () => {
 
 			expect(driver.selectAll()).not.toContain(driverData[id]);
 			expect(driver.selectAll().length).toEqual(ids.length - 1);
+		});
+
+		it('should delete where correct', () => {
+			initData();
+
+			const id = ids[0];
+
+			driver.deleteWhere(entry => entry._microdbId === id);
+
+			expect(driver.selectAll()).not.toContain(driverData[id]);
+			expect(driver.selectAll().length).toEqual(ids.length - 1);
+		});
+
+		it('should delete all where correct', () => {
+			initData();
+			const before = driver.selectAll();
+
+			driver.deleteAllWhere(entry => entry.age > 30);
+
+			const after = driver.selectAll();
+			expect(after).toEqual(before.filter(obj => obj.age <= 30));
 		});
 
 		it('should flush all data', () => {
