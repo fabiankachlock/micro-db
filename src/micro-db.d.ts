@@ -13,13 +13,8 @@ export interface MicroDBOptions {
 	janitorCronjob: string | undefined;
 }
 
-export interface MicroDBDriverOptions extends MicroDBOptions {
-	injectId: boolean;
-	idKeyName: string;
-}
+export type WherePredicate<T> = (object: MicroDBEntry<T>) => boolean;
 
-export type WherePredicate<T> = (object: T) => boolean;
+export type Mutation<A, B> = (object: A, id: string) => B;
 
-export type Mutation<A, B> = (object: A) => B;
-
-export type MicroDBEntry<T extends {}> = T & { _id: string };
+export type MicroDBEntry<T extends {}> = T & { _microdbId: string };

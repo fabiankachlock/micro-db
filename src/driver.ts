@@ -3,16 +3,11 @@ import { v4 as uuid } from 'uuid';
 import { MicroDBBase } from './db';
 import { MicroDBJanitor } from './janitor';
 import { MicroDBWatchable } from './watcher/watchable';
+import { withId } from './helper';
 
 type ExtraArgument<T> = {
 	driver: MicroDBDriver<T>;
 };
-
-// const defaultOptions: MicroDBDriverOptions = {
-// 	...MicroDBDefaultOptions,
-// 	injectId: false,
-// 	idKeyName: '_id',
-// };
 
 export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraArgument<T>> {
 	private _data: MicroDBData = {};
@@ -38,11 +33,6 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 			...options,
 			janitorCronjob: undefined,
 		});
-
-		// const resolvedOptions: MicroDBDriverOptions = {
-		// 	...defaultOptions,
-		// 	...options,
-		// };
 
 		if (options.janitorCronjob) {
 			this.janitor = new MicroDBJanitor(options.janitorCronjob, this.db);
@@ -76,20 +66,15 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 
 	// select a record by db id
 	select = (id: string): MicroDBEntry<T> | undefined => {
-		return {
-			...this._data[id],
-			_id: id,
-		};
+		return withId(this._data[id], id);
 	};
 
 	// select first record that fulfill predicate
 	selectWhere = (pred: WherePredicate<T>): MicroDBEntry<T> | undefined => {
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
-				return {
-					...value,
-					_id: key,
-				};
+			const valueWithId = withId(value, key);
+			if (pred(valueWithId)) {
+				return valueWithId;
 			}
 		}
 		return undefined;
@@ -99,11 +84,9 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	selectAllWhere = (pred: WherePredicate<T>): MicroDBEntry<T>[] => {
 		const objects: MicroDBEntry<T>[] = [];
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
-				objects.push({
-					...value,
-					_id: key,
-				});
+			const valueWithId = withId(value, key);
+			if (pred(valueWithId)) {
+				objects.push(valueWithId);
 			}
 		}
 		return objects;
@@ -129,7 +112,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	// update first record that fulfill predicate
 	updateWhere = (pred: WherePredicate<T>, object: Partial<T>): boolean => {
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
+			if (pred(withId(value, key))) {
 				return this.update(key, object);
 			}
 		}
@@ -142,7 +125,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		let updateCount = 0;
 
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
+			if (pred(withId(value, key))) {
 				updateCount += 1;
 				updates[key] = {
 					...this._data[key],
@@ -159,7 +142,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	mutate = (id: string, mutation: Mutation<T, T>): boolean => {
 		if (id in this._data) {
 			const object = this._data[id];
-			this.db.write(id, mutation(object));
+			this.db.write(id, mutation(object, id));
 			this._data = this.db.read();
 			this.valueChanged();
 			return true;
@@ -170,7 +153,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	// mutate first record that fulfill predicate
 	mutateWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>): boolean => {
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
+			if (pred(withId(value, key))) {
 				return this.mutate(key, mutation);
 			}
 		}
@@ -183,10 +166,10 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		let updateCount = 0;
 
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
+			if (pred(withId(value, key))) {
 				updateCount += 1;
 				const object = this._data[key];
-				updates[key] = mutation(object);
+				updates[key] = mutation(object, key);
 			}
 		}
 		this.db.writeBatch(updates);
@@ -197,7 +180,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	mutateAll = <B>(mutation: Mutation<T, B>) => {
 		const updates: MicroDBData = {};
 		for (const [key, value] of Object.entries(this._data)) {
-			updates[key] = mutation(value);
+			updates[key] = mutation(value, key);
 		}
 		this.db.writeBatch(updates);
 		this._data = this.db.read();
@@ -205,9 +188,6 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		// force clean db, because file size could double
 		MicroDBJanitor.cleanUp(this._dbRef);
 	};
-
-	// alias for mutateAll
-	migrate = this.mutateAll;
 
 	// delete a record
 	delete = (id: string) => {
@@ -223,7 +203,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	// delete first record that fulfill predicate
 	deleteWhere = (pred: WherePredicate<T>): boolean => {
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
+			if (pred(withId(value, key))) {
 				this.delete(key);
 				return true;
 			}
@@ -237,7 +217,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		let updateCount = 0;
 
 		for (const [key, value] of Object.entries(this._data)) {
-			if (pred(value)) {
+			if (pred(withId(value, key))) {
 				updateCount += 1;
 				updates[key] = undefined;
 			}
