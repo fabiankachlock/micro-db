@@ -149,7 +149,7 @@ Select a record by internal id (returned by [`create`](#microdbdrivercreate) met
 | -------- | -------- |
 | id       | `string` |
 
-Returns: [`MicroDBEntry<T>`]('microdbentryt)` | undefined`
+Returns: [`MicroDBEntry<T>`](microdbentryt)` | undefined`
 
 ### `MicroDBDriver.selectWhere()`
 
@@ -159,7 +159,7 @@ Select the first record satisfying the predicate.
 | -------- | --------------------------------------- |
 | pred     | [`WherePredicate<T>`](#wherepredicatet) |
 
-Returns: [`MicroDBEntry<T>`]('microdbentryt)` | undefined`
+Returns: [`MicroDBEntry<T>`](microdbentryt)` | undefined`
 
 ### `MicroDBDriver.selectAllWhere()`
 
@@ -169,13 +169,13 @@ Select all records satisfying the predicate.
 | -------- | --------------------------------------- |
 | pred     | [`WherePredicate<T>`](#wherepredicatet) |
 
-Returns: [`MicroDBEntry<T>`]('microdbentryt)`[]`
+Returns: [`MicroDBEntry<T>`](microdbentryt)`[]`
 
 ### `MicroDBDriver.selectAll()`
 
 Select all records.
 
-Returns: [`MicroDBEntry<T>`]('microdbentryt)`[]`
+Returns: [`MicroDBEntry<T>`](microdbentryt)`[]`
 
 ### `MicroDBDriver.update()`
 
@@ -277,7 +277,11 @@ Delete all records satisfying the predicate.
 
 Delete all data from the database.
 
+---
+
 ## MicroDBFacade
+
+The `MicroDBFace` has all methods of the [`MicroDBDriver`](#microdbdriver) as protected methods. For a usage example see [Patterns](https://github.com/fabiankachlock/micro-db/blob/main/REDME.md).
 
 ## MicroDBJanitor
 
@@ -333,7 +337,8 @@ Type: `(object: A) => B`
 
 ## `MicroDBEntry<T>`
 
-| property | type     |
-| -------- | -------- |
-| id       | `string` |
-| value    | `T`      |
+| property    | type     |
+| ----------- | -------- |
+| id          | `string` |
+| value       | `T`      |
+| \_microdbId | `string` |
