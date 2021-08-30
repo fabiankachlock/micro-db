@@ -19,7 +19,9 @@ import { MicroDBDriver } from './driver';
 export class MicroDBFacade<T extends MicroDBData> {
 	private ref: MicroDBDriver<T>;
 
-	protected data: MicroDBData;
+	protected get data(): MicroDBData {
+		return this.ref._currentValue;
+	}
 
 	constructor(options: Partial<MicroDBOptions> = {}) {
 		const db = new MicroDBBase({
@@ -27,7 +29,6 @@ export class MicroDBFacade<T extends MicroDBData> {
 			janitorCronjob: undefined,
 		});
 
-		this.data = db.read();
 		this.ref = new MicroDBDriver(db);
 	}
 

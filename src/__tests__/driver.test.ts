@@ -183,7 +183,7 @@ describe('micro-db/DBDriver tests', () => {
 			const before = driver.selectAll();
 
 			const res = driver.update('some-id', {
-				name: 'not-goig-to-be-changed',
+				name: 'not-going-to-be-changed',
 			});
 
 			const after = driver.selectAll();
@@ -244,6 +244,21 @@ describe('micro-db/DBDriver tests', () => {
 			const res = driver.mutate(id, obj => {
 				obj.age = 123;
 				return obj;
+			});
+
+			expect(res).toBe(true);
+			expect(driver.select(id)).toEqual({
+				...driverData[id],
+				age: 123,
+			});
+		});
+
+		it('should mutate correct without return', () => {
+			initData();
+			const id = ids[0];
+			expect(driver.select(id)).toEqual(driverData[id]);
+			const res = driver.mutate(id, obj => {
+				obj.age = 123;
 			});
 
 			expect(res).toBe(true);

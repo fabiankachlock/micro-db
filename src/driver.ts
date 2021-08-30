@@ -147,7 +147,8 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	mutate = (id: string, mutation: Mutation<T, T>): boolean => {
 		if (id in this._data) {
 			const object = this._data[id];
-			this.db.write(id, mutation(object, id));
+			const mutated = mutation(object, id);
+			this.db.write(id, mutated ? mutated : object); // use reference of object if mutation returned void
 			this._data = this.db.read();
 			this.valueChanged();
 			return true;
@@ -174,7 +175,8 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 			if (pred(withId(value, key))) {
 				updateCount += 1;
 				const object = this._data[key];
-				updates[key] = mutation(object, key);
+				const mutated = mutation(object, key);
+				updates[key] = mutated ? mutated : object; // use reference of object if mutation returned void
 			}
 		}
 		this.db.writeBatch(updates);
@@ -185,7 +187,9 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	mutateAll = <B>(mutation: Mutation<T, B>) => {
 		const updates: MicroDBData = {};
 		for (const [key, value] of Object.entries(this._data)) {
-			updates[key] = mutation(value, key);
+			const object = value;
+			const mutated = mutation(object, key);
+			updates[key] = mutated ? mutated : object; // use reference of object if mutation returned void
 		}
 		this.db.writeBatch(updates);
 		this._data = this.db.read();
@@ -195,14 +199,17 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	};
 
 	// delete a record
-	delete = (id: string) => {
+	delete = (id: string): boolean => {
 		const exists = id in this._data;
 
 		if (exists) {
 			this.db.write(id, undefined);
 			this._data = this.db.read();
 			this.valueChanged();
+			return true;
 		}
+
+		return false;
 	};
 
 	// delete first record that fulfill predicate
