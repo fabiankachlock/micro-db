@@ -9,7 +9,6 @@
   "repository": "https://github.com/fabiankachlock/micro-db",
   "author": "Fabian Kachlock",
   "license": "MIT",
-  "private": false,
   "scripts": {
     "build": "tsc",
     "test": "jest --config jestconfig.json",
