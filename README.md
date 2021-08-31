@@ -3,7 +3,17 @@
 micro-db is a lightweight, (by default) json-based, file-based, zero config database for nodejs.
 
 ![Maintainability](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/maintainability)
-![Maintainability](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/test_coverage)
+![Coverage](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/test_coverage)
+
+## Installation
+
+```bash
+npm i node-micro-db
+```
+
+```bash
+yarn add node-micro-db
+```
 
 ## 🪄 Quickstart
 
