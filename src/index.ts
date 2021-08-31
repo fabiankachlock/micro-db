@@ -15,3 +15,4 @@ export { MicroDBMS } from './dbms';
 export { MicroDBFacade } from './facade';
 export { MicroDBDriver } from './driver';
 export { MicroDBJanitor } from './janitor';
+export default MicroDB;
