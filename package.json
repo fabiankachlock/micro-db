@@ -1,6 +1,6 @@
 {
   "name": "micro-db",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "lib/index.js",
   "files": [
     "lib/**/*"
@@ -26,7 +26,7 @@
     "src/**/!(*test).ts": [
       "yarn lint"
     ],
-		"src/**/*.ts": [
+    "src/**/*.ts": [
       "yarn format"
     ]
   },
