@@ -238,12 +238,13 @@ describe('micro-db/DBDriver tests', () => {
 		it('should update nothing all where correct', () => {
 			initData();
 			const before = driver.selectAll();
-			driver.updateAllWhere(user => user._microdbId === 'some-id', {
+			const count = driver.updateAllWhere(user => user._microdbId === 'some-id', {
 				name: 'my-name',
 			});
 
 			const after = driver.selectAll();
 			expect(before).toEqual(after);
+			expect(count).toBe(0);
 		});
 	});
 
@@ -350,7 +351,7 @@ describe('micro-db/DBDriver tests', () => {
 		it('should mutate nothing all where correct', () => {
 			initData();
 			const before = driver.selectAll();
-			driver.mutateAllWhere(
+			const count = driver.mutateAllWhere(
 				user => user._microdbId === 'some-id',
 				obj => {
 					obj.name = 'my-name';
@@ -359,6 +360,7 @@ describe('micro-db/DBDriver tests', () => {
 
 			const after = driver.selectAll();
 			expect(before).toEqual(after);
+			expect(count).toBe(0);
 		});
 
 		it('should mutate all where without return correct', () => {
@@ -475,11 +477,12 @@ describe('micro-db/DBDriver tests', () => {
 
 			const before = driver.selectAll();
 
-			driver.deleteAllWhere(entry => entry._microdbId === 'some-id');
+			const count = driver.deleteAllWhere(entry => entry._microdbId === 'some-id');
 
 			const after = driver.selectAll();
 
 			expect(before).toEqual(after);
+			expect(count).toBe(0);
 		});
 
 		it('should flush all data', () => {
