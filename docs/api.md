@@ -1,5 +1,7 @@
 # micro-db API
 
+_Version: 1.0.4_
+
 # Contents
 
 - [Classes](#microdb)
@@ -208,6 +210,8 @@ Update all records satisfying the predicate.
 | pred     | [`WherePredicate<T>`](#wherepredicatet) |
 | object   | `Partial<T>`                            |
 
+Returns: `number` (count of updated records)
+
 ### `MicroDBDriver.mutate()`
 
 Mutate a record by internal id (returned by [`create`](#microdbdrivercreate)] method).
@@ -238,6 +242,8 @@ Mutate all records satisfying the predicate.
 | -------- | --------------------------------------- |
 | pred     | [`WherePredicate<T>`](#wherepredicatet) |
 | mutation | [`Mutation<T>`](#mutationa-b)           |
+
+Returns: `number` (count of mutated records)
 
 ### `MicroDBDriver.mutateAll()`
 
@@ -273,6 +279,8 @@ Delete all records satisfying the predicate.
 | -------- | --------------------------------------- |
 | pred     | [`WherePredicate<T>`](#wherepredicatet) |
 
+Returns: `number` (count of deleted records)
+
 ### `MicroDBDriver.flush()`
 
 Delete all data from the database.
@@ -281,7 +289,7 @@ Delete all data from the database.
 
 ## MicroDBFacade
 
-The `MicroDBFace` has all methods of the [`MicroDBDriver`](#microdbdriver) as protected methods. For a usage example see [Patterns](https://github.com/fabiankachlock/micro-db/blob/main/REDME.md).
+The `MicroDBFacade` has all methods of the [`MicroDBDriver`](#microdbdriver) as protected methods. For a usage example see [Patterns](https://github.com/fabiankachlock/micro-db/blob/main/REDME.md).
 
 ## MicroDBJanitor
 
