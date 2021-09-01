@@ -234,6 +234,17 @@ describe('micro-db/DBDriver tests', () => {
 				});
 			}
 		});
+
+		it('should update nothing all where correct', () => {
+			initData();
+			const before = driver.selectAll();
+			driver.updateAllWhere(user => user._microdbId === 'some-id', {
+				name: 'my-name',
+			});
+
+			const after = driver.selectAll();
+			expect(before).toEqual(after);
+		});
 	});
 
 	describe('mutate', () => {
@@ -251,6 +262,18 @@ describe('micro-db/DBDriver tests', () => {
 				...driverData[id],
 				age: 123,
 			});
+		});
+
+		it('should change nothing when id unknown', () => {
+			const before = driver.selectAll();
+
+			const res = driver.mutate('some-id', obj => {
+				obj.name = 'not-going-to-be-changed';
+			});
+
+			const after = driver.selectAll();
+			expect(before).toEqual(after);
+			expect(res).toBe(false);
 		});
 
 		it('should mutate correct without return', () => {
@@ -287,6 +310,22 @@ describe('micro-db/DBDriver tests', () => {
 			});
 		});
 
+		it('should mutate nothing where correct', () => {
+			initData();
+			const before = driver.selectAll();
+			const res = driver.mutateWhere(
+				user => user._microdbId === 'some-id',
+				obj => {
+					obj.name = 'my-name';
+				}
+			);
+
+			const after = driver.selectAll();
+
+			expect(res).toBe(false);
+			expect(before).toEqual(after);
+		});
+
 		it('should mutate all where correct', () => {
 			initData();
 
@@ -308,11 +347,58 @@ describe('micro-db/DBDriver tests', () => {
 			}
 		});
 
-		it('should mutate all where correct', () => {
+		it('should mutate nothing all where correct', () => {
+			initData();
+			const before = driver.selectAll();
+			driver.mutateAllWhere(
+				user => user._microdbId === 'some-id',
+				obj => {
+					obj.name = 'my-name';
+				}
+			);
+
+			const after = driver.selectAll();
+			expect(before).toEqual(after);
+		});
+
+		it('should mutate all where without return correct', () => {
+			initData();
+			driver.mutateAllWhere(
+				entry => true,
+				obj => {
+					obj.age += 10;
+				}
+			);
+			const data = driver.selectAll();
+			expect(data.length).toBeGreaterThan(0);
+			for (const obj of data) {
+				expect(obj).toEqual({
+					...driverData[obj._microdbId],
+					age: driverData[obj._microdbId].age + 10,
+				});
+			}
+		});
+
+		it('should mutate all correct', () => {
 			initData();
 			driver.mutateAll(obj => {
 				obj.age += 10;
 				return obj;
+			});
+			const data = driver.selectAll();
+			expect(data.length).toBeGreaterThan(0);
+			for (const obj of data) {
+				expect(obj).toEqual({
+					...driverData[obj._microdbId],
+					age: driverData[obj._microdbId].age + 10,
+				});
+			}
+		});
+
+		it('should mutate all without return correct', () => {
+			initData();
+			driver.mutateAll(obj => {
+				obj.age += 10;
 			});
 			const data = driver.selectAll();
 			expect(data.length).toBeGreaterThan(0);
@@ -337,6 +423,19 @@ describe('micro-db/DBDriver tests', () => {
 			expect(driver.selectAll().length).toEqual(ids.length - 1);
 		});
 
+		it('should delete nothing correct', () => {
+			initData();
+
+			const before = driver.selectAll();
+
+			const res = driver.delete('some-id');
+
+			const after = driver.selectAll();
+
+			expect(res).toBe(false);
+			expect(before).toEqual(after);
+		});
+
 		it('should delete where correct', () => {
 			initData();
 
@@ -348,6 +447,19 @@ describe('micro-db/DBDriver tests', () => {
 			expect(driver.selectAll().length).toEqual(ids.length - 1);
 		});
 
+		it('should delete nothing where correct', () => {
+			initData();
+
+			const before = driver.selectAll();
+
+			const res = driver.deleteWhere(entry => entry._microdbId === 'some-id');
+
+			const after = driver.selectAll();
+
+			expect(res).toBe(false);
+			expect(before).toEqual(after);
+		});
+
 		it('should delete all where correct', () => {
 			initData();
 			const before = driver.selectAll();
@@ -356,6 +468,18 @@ describe('micro-db/DBDriver tests', () => {
 
 			const after = driver.selectAll();
 			expect(after).toEqual(before.filter(obj => obj.age <= 30));
+		});
+
+		it('should delete nothing all where correct', () => {
+			initData();
+
+			const before = driver.selectAll();
+
+			driver.deleteAllWhere(entry => entry._microdbId === 'some-id');
+
+			const after = driver.selectAll();
+
+			expect(before).toEqual(after);
 		});
 
 		it('should flush all data', () => {
