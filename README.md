@@ -158,6 +158,34 @@ export class UserDB extends MicroDBFacade<UserDBEntry> {
 UserDB.logout('some-user-id');
 ```
 
+#### Example (using instance methods rather than static ones)
+
+```ts
+export class UserDB extends MicroDBFacade<UserDBEntry> {
+	constructor() {
+		// 1. construct db instance
+		super({ fileName: 'db/users.db' });
+	}
+	// 2. expose shutdown function
+	shutdown = () => this.db.close();
+
+	// 3. define complex database operations
+	logout = (userId: string) => {
+		const userRecord = this.db.select(userId);
+
+		// ...
+
+		this..db.update(userId, {
+			//...
+		});
+	};
+}
+
+// 4. usage
+const db = new UserDB();
+db.logout('some-user-id');
+```
+
 ### id-aware Records
 
 Sometimes, you need your database records to be aware of their id. This is mainly the case, when otherwise heavy select statements are needed to query some commonly used data. Implementing this with micro-db is very easy (and works best with the [Facade Pattern](#facade-pattern)).
