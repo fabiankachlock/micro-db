@@ -17,10 +17,10 @@ import { MicroDBDriver } from './driver';
  * }
  */
 export class MicroDBFacade<T extends MicroDBData> {
-	private ref: MicroDBDriver<T>;
+	protected db: MicroDBDriver<T>;
 
 	protected get data(): MicroDBData {
-		return this.ref._currentValue;
+		return this.db._currentValue;
 	}
 
 	constructor(options: Partial<MicroDBOptions> = {}) {
@@ -29,61 +29,61 @@ export class MicroDBFacade<T extends MicroDBData> {
 			janitorCronjob: undefined,
 		});
 
-		this.ref = new MicroDBDriver(db);
+		this.db = new MicroDBDriver(db);
 	}
 
 	// close db
-	public close = () => this.ref.close;
+	protected close = () => this.db.close;
 
 	// create a new record
-	protected create = (object: T): string => this.ref.create(object);
+	protected create = (object: T): string => this.db.create(object);
 
 	// select a record by db id
-	protected select = (id: string): T | undefined => this.ref.select(id);
+	protected select = (id: string): T | undefined => this.db.select(id);
 
 	// select first record that fulfill predicate
-	protected selectWhere = (pred: WherePredicate<T>): MicroDBEntry<T> | undefined => this.ref.selectWhere(pred);
+	protected selectWhere = (pred: WherePredicate<T>): MicroDBEntry<T> | undefined => this.db.selectWhere(pred);
 
 	// select all records that fulfill predicate
-	protected selectAllWhere = (pred: WherePredicate<T>): MicroDBEntry<T>[] => this.ref.selectAllWhere(pred);
+	protected selectAllWhere = (pred: WherePredicate<T>): MicroDBEntry<T>[] => this.db.selectAllWhere(pred);
 
 	// select all records
-	protected selectAll = () => this.ref.selectAll();
+	protected selectAll = () => this.db.selectAll();
 
 	// update a record
-	protected update = (id: string, object: Partial<T>): boolean => this.ref.update(id, object);
+	protected update = (id: string, object: Partial<T>): boolean => this.db.update(id, object);
 
 	// update first record that fulfill predicate
-	protected updateWhere = (pred: WherePredicate<T>, object: Partial<T>): boolean => this.ref.updateWhere(pred, object);
+	protected updateWhere = (pred: WherePredicate<T>, object: Partial<T>): boolean => this.db.updateWhere(pred, object);
 
 	// update all records that fulfill predicate
-	protected updateAllWhere = (pred: WherePredicate<T>, object: Partial<T>) => this.ref.updateAllWhere(pred, object);
+	protected updateAllWhere = (pred: WherePredicate<T>, object: Partial<T>) => this.db.updateAllWhere(pred, object);
 
 	// mutate a record
-	protected mutate = (id: string, mutation: Mutation<T, T>): boolean => this.ref.mutate(id, mutation);
+	protected mutate = (id: string, mutation: Mutation<T, T>): boolean => this.db.mutate(id, mutation);
 
 	// mutate first record that fulfill predicate
 	protected mutateWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>): boolean =>
-		this.ref.mutateWhere(pred, mutation);
+		this.db.mutateWhere(pred, mutation);
 
 	// mutate all records that fulfill predicate
 	protected mutateAllWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>) =>
-		this.ref.mutateAllWhere(pred, mutation);
+		this.db.mutateAllWhere(pred, mutation);
 
-	protected mutateAll = <B>(mutation: Mutation<T, B>) => this.ref.mutateAll(mutation);
+	protected mutateAll = <B>(mutation: Mutation<T, B>) => this.db.mutateAll(mutation);
 
 	// alias for mutateAll
 	protected migrate = this.mutateAll;
 
 	// delete a record
-	protected delete = (id: string) => this.ref.delete(id);
+	protected delete = (id: string) => this.db.delete(id);
 
 	// delete first record that fulfill predicate
-	protected deleteWhere = (pred: WherePredicate<T>): boolean => this.ref.deleteWhere(pred);
+	protected deleteWhere = (pred: WherePredicate<T>): boolean => this.db.deleteWhere(pred);
 
 	// delete all records that fulfill predicate
-	protected deleteAllWhere = (pred: WherePredicate<T>) => this.ref.deleteAllWhere(pred);
+	protected deleteAllWhere = (pred: WherePredicate<T>) => this.db.deleteAllWhere(pred);
 
 	// clear whole table
-	protected flush = () => this.ref.flush();
+	protected flush = () => this.db.flush();
 }

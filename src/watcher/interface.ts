@@ -8,5 +8,5 @@ export type SubscriptionCallback<Value, ExtraArguments> = (
 
 export type SubscriptionOptions<T> = {
 	predicate: (value: T) => boolean;
-	callImmidiate: boolean;
+	callImmediate: boolean;
 };

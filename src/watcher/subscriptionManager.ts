@@ -10,7 +10,7 @@ type Watcher<Value, CallbackArguments> = {
 
 const defaultSubscriptionOptions: SubscriptionOptions<unknown> = {
 	predicate: () => true,
-	callImmidiate: false,
+	callImmediate: false,
 };
 
 export interface Subscribeable<Value, ExtraArguments> {
@@ -46,8 +46,8 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 		const subscription = new Subscription(id, () => this.deleteWatcher(id));
 
 		const resolvedOptions = {
-			...options,
 			...defaultSubscriptionOptions,
+			...options,
 		};
 
 		// store new watcher with options
@@ -58,7 +58,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 		};
 
 		// call, if specified in options
-		if (resolvedOptions.callImmidiate && this.lastValue) {
+		if (resolvedOptions.callImmediate && this.lastValue) {
 			this.callWatcher(id, this.lastValue, this.lastValue);
 		}
 

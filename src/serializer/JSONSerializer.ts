@@ -11,8 +11,8 @@ export class JSONSerializer implements MicroDBSerializer {
 
 	serializeAll = (data: MicroDBData) =>
 		Object.entries(data)
-			.map(e => this.serializeObject(e[0], e[1])) // serialize every single key-value-pair
-			.join(''); // and combinde them into a single string
+			.map(entry => this.serializeObject(entry[0], entry[1])) // serialize every single key-value-pair
+			.join(''); // and combine them into a single string
 
 	deserialize = (raw: string) => {
 		const rows = raw.split('\n');
@@ -22,12 +22,11 @@ export class JSONSerializer implements MicroDBSerializer {
 
 			// split key from data
 			const index = entry.indexOf(':');
-			if (index === -1) return undefined; // invalid format: no seperator
 
 			// define parts
 			const [key, value] = [entry.substring(0, index), entry.substring(index + 1, entry.length)];
-			// invalid key or value
-			if (key.length === 0 || value.length === 0) return undefined;
+			// invalid format: no separator or invalid key or value
+			if (index === -1 || key.length === 0 || value.length === 0) return undefined;
 
 			let json;
 			if (value !== 'undefined') {

@@ -43,7 +43,6 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		const driver = new MicroDBDriver<T>({});
 
 		driver.close();
-		driver.janitor?.kill();
 		driver.db = db;
 		driver._data = db.read();
 
@@ -53,6 +52,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	// close db
 	close = () => {
 		this.db.close();
+		this.janitor?.kill();
 	};
 
 	// create a new record
@@ -125,7 +125,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	};
 
 	// update all records that fulfill predicate
-	updateAllWhere = (pred: WherePredicate<T>, object: Partial<T>) => {
+	updateAllWhere = (pred: WherePredicate<T>, object: Partial<T>): number => {
 		const updates: MicroDBData = {};
 		let updateCount = 0;
 
@@ -141,6 +141,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		this.db.writeBatch(updates);
 		this._data = this.db.read();
 		if (updateCount > 0) this.valueChanged();
+		return updateCount;
 	};
 
 	// mutate a record
@@ -167,7 +168,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	};
 
 	// mutate all records that fulfill predicate
-	mutateAllWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>) => {
+	mutateAllWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>): number => {
 		const updates: MicroDBData = {};
 		let updateCount = 0;
 
@@ -182,6 +183,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		this.db.writeBatch(updates);
 		this._data = this.db.read();
 		if (updateCount > 0) this.valueChanged();
+		return updateCount;
 	};
 
 	mutateAll = <B>(mutation: Mutation<T, B>) => {
@@ -224,7 +226,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	};
 
 	// delete all records that fulfill predicate
-	deleteAllWhere = (pred: WherePredicate<T>) => {
+	deleteAllWhere = (pred: WherePredicate<T>): number => {
 		const updates: MicroDBData = {};
 		let updateCount = 0;
 
@@ -236,6 +238,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		}
 		this.db.writeBatch(updates);
 		if (updateCount > 0) this.valueChanged();
+		return updateCount;
 	};
 
 	// clear whole table

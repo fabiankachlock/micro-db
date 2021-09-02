@@ -1,6 +1,6 @@
 {
   "name": "node-micro-db",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "main": "lib/index.js",
   "files": [
     "lib/**/*"
@@ -9,7 +9,6 @@
   "repository": "https://github.com/fabiankachlock/micro-db",
   "author": "Fabian Kachlock",
   "license": "MIT",
-  "private": false,
   "scripts": {
     "build": "tsc",
     "test": "jest --config jestconfig.json",
