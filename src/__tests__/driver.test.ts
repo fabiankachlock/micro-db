@@ -1,6 +1,6 @@
 import path from 'path';
 import { MicroDBDriver } from '../driver';
-import { setupTestDir, saveRemoveFolder } from './helper.test';
+import { setupTestDir, saveRemoveFolder, sleep } from './helper.test';
 
 describe('micro-db/DBDriver tests', () => {
 	const dbPath = path.join('_dbdriver-tests', 'test.db');
@@ -70,6 +70,30 @@ describe('micro-db/DBDriver tests', () => {
 
 	afterEach(() => {
 		driver.flush();
+	});
+
+	it('should init with zero config', () => {
+		expect(() => {
+			const db = new MicroDBDriver();
+			db.close();
+		}).not.toThrow();
+	});
+
+	it('should setup cronjob correct', async () => {
+		const janitorDriver = new MicroDBDriver({
+			fileName: path.join('_dbdriver-tests', 'test-janitor.db'),
+			janitorCronjob: '* * * * * *',
+		});
+
+		const callback = jest.fn(() => {});
+
+		janitorDriver.janitor?.$watchNext(callback);
+
+		await sleep(1250);
+
+		expect(callback).toBeCalled();
+
+		janitorDriver.close();
 	});
 
 	describe('create', () => {

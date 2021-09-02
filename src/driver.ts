@@ -43,7 +43,6 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 		const driver = new MicroDBDriver<T>({});
 
 		driver.close();
-		driver.janitor?.kill();
 		driver.db = db;
 		driver._data = db.read();
 
@@ -53,6 +52,7 @@ export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraA
 	// close db
 	close = () => {
 		this.db.close();
+		this.janitor?.kill();
 	};
 
 	// create a new record
