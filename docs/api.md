@@ -66,9 +66,13 @@ Type: `readonly string`
 
 ### `MicroDBBase.dataSerializer`
 
+Returns a reference to the active serializer.
+
 Type: `readonly `[`MicroDBSerializer`](#microdbserializer)
 
 ### `MicroDBBase.janitor`
+
+Returns a reference to the active janitor instance (if a janitorCronjob got defined in the options).
 
 Type: `readonly `[`MicroDBJanitor`](#microdbjanitor)` | undefined`
 
@@ -123,9 +127,13 @@ Returns: [`MicroDBDriver`](#microdbdriver)
 
 ### `MicroDBDriver._dbRef`
 
+Returns a reference to the underlying [`MicroDBBase`](#microdbbase).
+
 Type: `readonly `[`MicroDBBase`](#microdbbase)
 
 ### `MicroDBDriver.janitor`
+
+Returns a reference to the active janitor instance (if a janitorCronjob got defined in the options).
 
 Type: `readonly `[`MicroDBJanitor`](#microdbjanitor)` | undefined`
 
@@ -289,9 +297,86 @@ Delete all data from the database.
 
 ## MicroDBFacade
 
+Generic type `<T>`: type of the record that is going to be stored.
+
 The `MicroDBFacade` has all methods of the [`MicroDBDriver`](#microdbdriver) as protected methods. For a usage example see [Patterns](https://github.com/fabiankachlock/micro-db/blob/main/REDME.md).
 
+Further, the `MicroDBFacade` provides more protected properties for convenience.
+
+### `protected MicroDBFacade.db`
+
+Provides a reference to the underlying [`MicroDBDriver`](#microdbdriver).
+
+Type: [`MicroDBDriver`](#microdbdriver)`<T>`
+
+### `protected MicroDBFacade.data`
+
+Provides the current database state.
+
+Type: [`MicroDBData`](#microdbdata)`<T>`
+
+---
+
 ## MicroDBJanitor
+
+The MicroDBJanitor cleans up data overhead and reduces database file size.
+It can be used either as global instance for batching cleanups with registerDatabase & deleteDatabase or as db-personal instance.
+
+### `MicroDBJanitor.constructor()`
+
+| argument | type                              | default                                   |
+| -------- | --------------------------------- | ----------------------------------------- |
+| cron     | `string`                          | `'00 00 00 * * '` (every day at midnight) |
+| ...dbs   | [`MicroDBBase`](#microdbbase)`[]` | -                                         |
+
+### `MicroDBJanitor.databases`
+
+Returns all registered databases.
+
+Type: [`MicroDBBase`](#microdbbase)`[]`
+
+### `static async MicroDBJanitor.cleanUp()`
+
+Cleans the database passed as an argument asynchronously.
+
+| argument | type                          |
+| -------- | ----------------------------- |
+| db       | [`MicroDBBase`](#microdbbase) |
+
+### `static MicroDBJanitor.cleanUpSync()`
+
+Cleans the database passed as an argument synchronously.
+
+| argument | type                          |
+| -------- | ----------------------------- |
+| db       | [`MicroDBBase`](#microdbbase) |
+
+### `MicroDBJanitor.cleanAll()`
+
+Cleans all registered databases.
+
+### `MicroDBJanitor.registerDatabase()`
+
+Register a new database to be cleaned by the janitor.
+
+| argument | type                          |
+| -------- | ----------------------------- |
+| db       | [`MicroDBBase`](#microdbbase) |
+
+### `MicroDBJanitor.deleteDatabase()`
+
+Delete a registered database.
+
+> **Which database is going to be deleted is determined by the filename of the database**
+> This means you don't need to pass the correct reference to the database, but if you would have to databases running on the same file (why???) both would get deleted.
+
+| argument | type                          |
+| -------- | ----------------------------- |
+| db       | [`MicroDBBase`](#microdbbase) |
+
+### `MicroDBJanitor.kill()`
+
+Stops the running cronjob of the janitor.
 
 ## default Options
 
