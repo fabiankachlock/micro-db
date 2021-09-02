@@ -368,7 +368,7 @@ Register a new database to be cleaned by the janitor.
 Delete a registered database.
 
 > **Which database is going to be deleted is determined by the filename of the database**
-> This means you don't need to pass the correct reference to the database, but if you would have to databases running on the same file (why???) both would get deleted.
+> This means you don't need to pass the correct reference to the database, but if you would have two databases running on the same file (why???) both would get deleted.
 
 | argument | type                          |
 | -------- | ----------------------------- |
@@ -377,6 +377,8 @@ Delete a registered database.
 ### `MicroDBJanitor.kill()`
 
 Stops the running cronjob of the janitor.
+
+---
 
 ## default Options
 
