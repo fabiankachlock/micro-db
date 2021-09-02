@@ -46,8 +46,8 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 		const subscription = new Subscription(id, () => this.deleteWatcher(id));
 
 		const resolvedOptions = {
-			...options,
 			...defaultSubscriptionOptions,
+			...options,
 		};
 
 		// store new watcher with options
