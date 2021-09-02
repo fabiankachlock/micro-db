@@ -15,11 +15,7 @@
     "test:watch": "jest --config jestconfig.json --watch",
     "test:coverage": "jest --config jestconfig.json --coverage",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "tslint -p tsconfig.json",
-    "prepare": "yarn build",
-    "preversion": "yarn test && yarn lint && yarn build",
-    "version": "yarn format && git add -A src",
-    "postversion": "git push --tags && npm publish --access=public && git push && echo \"Successfully released version $npm_package_version!\""
+    "lint": "tslint -p tsconfig.json"
   },
   "lint-staged": {
     "src/**/!(*test).ts": [
