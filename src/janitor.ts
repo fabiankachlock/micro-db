@@ -1,5 +1,6 @@
 import { MicroDBBase } from './db';
-import { CronJob } from 'cron';
+import schedule, { Job } from 'node-schedule';
+import { v4 as uuid } from 'uuid';
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
 import { MicroDBWatchable } from './watcher/watchable';
@@ -11,7 +12,7 @@ type ExtraArgument = {
 // The MicroDBJanitor cleans up data overhead and reduces database file size.
 // It can be used either as global instance for batching cleanups with registerDatabase & deleteDatabase or as db-personal instance
 export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
-	private job: CronJob;
+	private job: Job;
 
 	private dbs: MicroDBBase[];
 
@@ -28,8 +29,7 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	constructor(cron: string = '00 00 00 * * *' /* every day at midnight */, ...dbs: MicroDBBase[]) {
 		super();
 
-		this.job = new CronJob(cron, this.cleanUpCallBack);
-		this.job.start();
+		this.job = schedule.scheduleJob(`micro-db janitor ${uuid()}`, cron, this.cleanUpCallBack);
 		this.dbs = dbs;
 	}
 
@@ -63,6 +63,6 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	};
 
 	public kill = () => {
-		this.job.stop();
+		this.job.cancel(false);
 	};
 }
