@@ -303,7 +303,7 @@ Delete all data from the database.
 
 Generic type `<T>`: type of the record that is going to be stored.
 
-The `MicroDBFacade` has all methods of the [`MicroDBDriver`](#microdbdriver) as protected methods. For a usage example see [Patterns](https://github.com/fabiankachlock/micro-db/blob/main/REDME.md).
+The `MicroDBFacade` has all methods of the [`MicroDBDriver`](#microdbdriver) as protected methods. For a usage example see [Patterns](https://github.com/fabiankachlock/micro-db/blob/docs/REDME.md).
 
 Further, the `MicroDBFacade` provides more protected properties for convenience.
 
