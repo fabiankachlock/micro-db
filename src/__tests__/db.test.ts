@@ -87,6 +87,29 @@ describe('micro-db/DBBase tests', () => {
 		expect(db.read()).toEqual({});
 	});
 
+	it('should differentiate undefined from null correct', () => {
+		const data = {
+			someString: 'abc',
+		};
+
+		// write initial data
+		db.write('id', data);
+		expect(db.read()).toEqual({ id: data });
+
+		// delete initial data
+		db.write('id', undefined);
+		expect(db.read()).toEqual({});
+
+		// write again
+		db.write('id', data);
+		expect(db.read()).toEqual({ id: data });
+
+		// set to null
+		db.write('id', null);
+		// should not get deleted
+		expect(db.read()).toEqual({ id: null });
+	});
+
 	it('should batch delete correct', () => {
 		const data = {
 			id: {
