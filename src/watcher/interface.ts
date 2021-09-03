@@ -7,6 +7,6 @@ export type SubscriptionCallback<Value, ExtraArguments> = (
 ) => void;
 
 export type SubscriptionOptions<T> = {
-	predicate: (value: T) => boolean;
+	predicate: (newValue: T, lastValue: T | undefined) => boolean;
 	callImmediate: boolean;
 };

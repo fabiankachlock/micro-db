@@ -3,7 +3,7 @@ import path from 'path';
 import { MicroDBJanitor } from './janitor';
 import type { MicroDBData, MicroDBOptions, MicroDBSerializer } from './micro-db';
 import { JSONSerializer } from './serializer/JSONSerializer';
-import { MicroDBWatchable } from './watcher/watchable';
+import { MicroDBPropertyWatchable } from './watcher/propertyWatchable';
 
 export const MicroDBDefaultOptions: MicroDBOptions = {
 	fileName: 'micro.db',
@@ -15,7 +15,7 @@ export const MicroDBDefaultOptions: MicroDBOptions = {
 type ExtraArgument = {
 	base: MicroDBBase;
 };
-export class MicroDBBase extends MicroDBWatchable<MicroDBData, ExtraArgument> {
+export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgument> {
 	private writeStream: fs.WriteStream;
 
 	private currentData: MicroDBData = {};

@@ -1,7 +1,7 @@
 import { SubscriptionManager } from '../../watcher/subscriptionManager';
 import { MicroDBWatchable } from '../../watcher/watchable';
 
-export class MockWatchable extends MicroDBWatchable<{}, {}> {
+class MockWatchable extends MicroDBWatchable<{}, {}> {
 	_currentValue = () => ({});
 	_getCallbackArguments = () => ({});
 	trigger = this.valueChanged;

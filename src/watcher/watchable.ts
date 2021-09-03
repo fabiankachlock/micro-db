@@ -39,8 +39,8 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 
 		const subscription = this._subscriptionManager.registerWatcher(callback, {
 			...options,
-			predicate: value => {
-				const allowed = options.predicate ? options.predicate(value) : true;
+			predicate: (newValue, lastValue) => {
+				const allowed = options.predicate ? options.predicate(newValue, lastValue) : true;
 
 				if (allowed) {
 					if (called) {
@@ -48,7 +48,7 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 						subscription.destroy();
 						return false;
 					}
-					// only set called when its acually allowed
+					// only set called when its actually allowed
 					called = true;
 				}
 				return allowed;

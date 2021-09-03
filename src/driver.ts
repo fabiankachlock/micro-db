@@ -2,14 +2,14 @@ import type { MicroDBOptions, MicroDBEntry, Mutation, WherePredicate, MicroDBDat
 import { v4 as uuid } from 'uuid';
 import { MicroDBBase } from './db';
 import { MicroDBJanitor } from './janitor';
-import { MicroDBWatchable } from './watcher/watchable';
+import { MicroDBPropertyWatchable } from './watcher/propertyWatchable';
 import { withId } from './helper';
 
 type ExtraArgument<T> = {
 	driver: MicroDBDriver<T>;
 };
 
-export class MicroDBDriver<T> extends MicroDBWatchable<Record<string, T>, ExtraArgument<T>> {
+export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>, ExtraArgument<T>> {
 	private _data: MicroDBData = {};
 
 	private db: MicroDBBase;
