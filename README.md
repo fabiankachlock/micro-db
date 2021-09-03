@@ -59,7 +59,7 @@ For more information about available methods, check out the [API](#api)
 - [Patterns](#patterns)
   - [Facade Pattern](#facade-pattern)
   - [id-aware Records](#id-aware-records)
-- [API](https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md)
+- [API](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md)
 
 ## Why micro-db
 
@@ -90,21 +90,21 @@ To use the full power of typescript you should use micro-db as a sql database. A
 
 ### Debuggable
 
-micro-db's default json serializer stores all records in a [human readable format](#https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#jsonserializer) in your database file. Since every database operation results is a new stored record, all operations an their results are traceable in the database file.
+micro-db's default json serializer stores all records in a [human readable format](#https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#jsonserializer) in your database file. Since every database operation results is a new stored record, all operations an their results are traceable in the database file.
 
 ### Expandable
 
-If the json format used for serialization doesn't suits you needs, you can implement an own [`MicroDBSerializer`](#https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#microdbserializer) yourself and pass it with your config.
+If the json format used for serialization doesn't suits you needs, you can implement an own [`MicroDBSerializer`](#https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbserializer) yourself and pass it with your config.
 
 This technique can be used for things as encryption or data compression.
 
 ### Built in Janitor
 
-micro-db has a janitor built in. The main task of the [`MicroDBJanitor`](https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#microdbjanitor) is to clean redundant / outdated snapshots from your database file.
+micro-db has a janitor built in. The main task of the [`MicroDBJanitor`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbjanitor) is to clean redundant / outdated snapshots from your database file.
 
 ### Easily Replaceable
 
-When used right (with the [`MicroDBFacade`](https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#microdbfacade)), you hide the actual database operations from the rest of your app. Which means, that you can easily change your database later on, without even noticing it anywhere else in the app.
+When used right (with the [`MicroDBFacade`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbfacade)), you hide the actual database operations from the rest of your app. Which means, that you can easily change your database later on, without even noticing it anywhere else in the app.
 
 ## When to use micro-db
 
@@ -116,7 +116,7 @@ When space (database file size) is a heavy constraint for your nodejs app, you s
 
 ### How to deal with space constraints
 
-The [`MicroDBJanitor`](https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#microdbjanitor) is responsible for cleaning up the database file for redundant records. The [`MicroDBJanitor`](https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#microdbjanitor) is configured with a cronjob, which determines when and how often the janitor has to run. The more traffic or changes your database has, the more often the janitor should run to prevent huge overhead in file size.
+The [`MicroDBJanitor`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbjanitor) is responsible for cleaning up the database file for redundant records. The [`MicroDBJanitor`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbjanitor) is configured with a cronjob, which determines when and how often the janitor has to run. The more traffic or changes your database has, the more often the janitor should run to prevent huge overhead in file size.
 
 ## Gotchas
 
@@ -138,7 +138,7 @@ See example [in tests](https://github.com/fabiankachlock/micro-db/blob/main/src/
 
 micro-db encourages you, to hide bare-bones database operations, like `select` or `update` statements from the rest of you application using the [Facade pattern](https://en.wikipedia.org/wiki/Facade_pattern)
 
-To implement this in your code, you can extend the [`MicroDBFacade`](https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#microdbfacade) class. The `MicroDBFacade` provides the same api as a [`MicroDBDriver`](https://github.com/fabiankachlock/micro-db/blob/main/docs/api.md#microdbdriver), but all methods are protected, which means they are inaccessible from outside of the class.
+To implement this in your code, you can extend the [`MicroDBFacade`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbfacade) class. The `MicroDBFacade` provides the same api as a [`MicroDBDriver`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbdriver), but all methods are protected, which means they are inaccessible from outside of the class.
 
 The example below shows how straight forward this approach is:
 
