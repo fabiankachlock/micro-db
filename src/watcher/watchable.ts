@@ -34,10 +34,11 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 
 	$watchNext = (
 		callback: SubscriptionCallback<Value, CallbackArguments>,
-		options: Partial<SubscriptionOptions<Value>> = {}
+		options: Partial<SubscriptionOptions<Value>> = {},
+		times: number = 1
 	) => {
 		// init as not called
-		let called = false;
+		let numberOfCalls = 0;
 
 		const subscription = this._subscriptionManager.registerWatcher(callback, {
 			...options,
@@ -45,13 +46,13 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 				const allowed = options.predicate ? options.predicate(newValue, lastValue) : true;
 
 				if (allowed) {
-					if (called) {
-						// destroy subscription when its called
+					if (numberOfCalls >= times) {
+						// destroy subscription when its called the last time
 						subscription.destroy();
 						return false;
 					}
-					// only set called when its actually allowed
-					called = true;
+					// increment number of calls
+					numberOfCalls += 1;
 				}
 				return allowed;
 			},
