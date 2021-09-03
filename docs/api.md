@@ -10,6 +10,10 @@ _Version: 1.0.4_
   - [`MicroDBDriver`](#microdbdriver)
   - [`MicroDBFacade`](#microdbfacade)
   - [`MicroDBJanitor`](#microdbjanitor)
+  - [`Subscription`](#subscription)
+- [Interfaces](#microdbwatchable)
+  - [`MicroDBWatchable`](#microdbwatchable)
+  - [`MicroDBPropertyWatchable`](#microdbpropertywatchable)
 - [Constants](#default-options)
 - [Types](#types)
 
@@ -380,6 +384,57 @@ Stops the running cronjob of the janitor.
 
 ---
 
+## Subscription
+
+Represents a reference to a subscription made with $watch.
+
+### `Subscription.id`
+
+Type: `readonly string`
+
+### `Subscription.constructor()`
+
+| argument | type         |
+| -------- | ------------ |
+| id       | `string`     |
+| destroy  | `() => void` |
+
+### `Subscription.destroy()`
+
+Cancel the subscription.
+
+### `Subscription.onClose()`
+
+Function, that gets executed, when the subscription gets destroyed.
+
+---
+
+## MicroDBWatchable
+
+Provides an interface for subscribing and watching for data changes in a class.
+
+Implemented by: [`MicroDBJanitor`](#microdbjanitor)
+
+### `MicroDBWatchable.$watch()`
+
+### `MicroDBWatchable.$watchNext()`
+
+---
+
+## MicroDBPropertyWatchable
+
+Extends [`MicroDBWatchable`](#microdbwatchable) with methods for subscribing and watching for changes of individual properties of a object.
+
+Extends: [`MicroDBWatchable`](#microdbwatchable)
+
+Implemented by: [`MicroDBBase`](#microdbbase), [`MicroDBDriver`](#microdbdriver)
+
+### `MicroDBPropertyWatchable.$watchProperty()`
+
+### `MicroDBPropertyWatchable.$watchPropertyNext()`
+
+---
+
 ## default Options
 
 ```ts
@@ -437,3 +492,14 @@ Type: `(object: A) => B`
 | id          | `string` |
 | value       | `T`      |
 | \_microdbId | `string` |
+
+## `SubscriptionCallback<Value, ExtraArguments>`
+
+Type: `( value: Value, extraArguments: ExtraArguments, subscription: Subscription) => void`
+
+## `SubscriptionOptions<T>`
+
+| property      | type                                                   |
+| ------------- | ------------------------------------------------------ |
+| predicate     | ` (newValue: T, lastValue: T \| undefined) => boolean` |
+| callImmediate | `boolean`                                              |
