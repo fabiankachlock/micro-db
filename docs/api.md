@@ -1,6 +1,6 @@
 # micro-db API
 
-_Version: 1.0.4_
+_Version: 1.0.6_
 
 # Contents
 
@@ -411,13 +411,35 @@ Function, that gets executed, when the subscription gets destroyed.
 
 ## MicroDBWatchable
 
+Generic type `<Value>`: type of tha data, that is going to be watched
+Generic type `<CallbackArguments>`: type of extra arguments provided to the callback
+
 Provides an interface for subscribing and watching for data changes in a class.
 
 Implemented by: [`MicroDBJanitor`](#microdbjanitor)
 
 ### `MicroDBWatchable.$watch()`
 
+Watch for all upcoming value changes while the subscription is active.
+
+| argument | type                                                                                          |
+| -------- | --------------------------------------------------------------------------------------------- |
+| callback | [`SubscriptionCallback<Value, CallbackArguments>`](#subscriptioncallbackvalue-extraarguments) |
+| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                |
+
+Returns: [`Subscription`](#subscription)
+
 ### `MicroDBWatchable.$watchNext()`
+
+Watch for the next value change.
+
+| argument | type                                                                                          | default    |
+| -------- | --------------------------------------------------------------------------------------------- | ---------- |
+| callback | [`SubscriptionCallback<Value, CallbackArguments>`](#subscriptioncallbackvalue-extraarguments) | (required) |
+| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                | {}         |
+| times    | `number`                                                                                      | 1          |
+
+Returns: [`Subscription`](#subscription)
 
 ---
 
@@ -425,13 +447,35 @@ Implemented by: [`MicroDBJanitor`](#microdbjanitor)
 
 Extends [`MicroDBWatchable`](#microdbwatchable) with methods for subscribing and watching for changes of individual properties of a object.
 
-Extends: [`MicroDBWatchable`](#microdbwatchable)
+Generic type `<Value>`: type of tha data, that is going to be watched
+Generic type `<CallbackArguments>`: type of extra arguments provided to the callback
 
 Implemented by: [`MicroDBBase`](#microdbbase), [`MicroDBDriver`](#microdbdriver)
 
 ### `MicroDBPropertyWatchable.$watchProperty()`
 
+Watch for all upcoming property changes while the subscription is active.
+
+| argument | type                                                                                          |
+| -------- | --------------------------------------------------------------------------------------------- |
+| property | `P extends keyof Value`                                                                       |
+| callback | [`SubscriptionCallback<Value, CallbackArguments>`](#subscriptioncallbackvalue-extraarguments) |
+| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                |
+
+Returns: [`Subscription`](#subscription)
+
 ### `MicroDBPropertyWatchable.$watchPropertyNext()`
+
+Watch for the next property change.
+
+| argument | type                                                                                          | default    |
+| -------- | --------------------------------------------------------------------------------------------- | ---------- |
+| property | `P extends keyof Value`                                                                       | (required) |
+| callback | [`SubscriptionCallback<Value, CallbackArguments>`](#subscriptioncallbackvalue-extraarguments) | (required) |
+| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                | {}         |
+| times    | `number`                                                                                      | 1          |
+
+Returns: [`Subscription`](#subscription)
 
 ---
 
