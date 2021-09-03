@@ -125,7 +125,7 @@ Returns: [`MicroDBDriver`](#microdbdriver)
 | -------- | ------------------------------------------------ |
 | options  | `Partial<`[`MicroDBOptions`](#microdboptions)`>` |
 
-### `MicroDBDriver._dbRef`
+### `MicroDBDriver.dbRef`
 
 Returns a reference to the underlying [`MicroDBBase`](#microdbbase).
 

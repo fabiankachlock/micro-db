@@ -14,16 +14,18 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 
 	private db: MicroDBBase;
 
-	get _dbRef(): MicroDBBase {
+	get dbRef(): MicroDBBase {
 		return this.db;
 	}
 
 	readonly janitor: MicroDBJanitor | undefined = undefined;
 
+	// @internal
 	_getCallbackArguments = (): ExtraArgument<T> => ({
 		driver: this,
 	});
 
+	// @internal
 	_currentValue = (): MicroDBData => this._data;
 
 	constructor(options: Partial<MicroDBOptions> = {}) {
@@ -197,7 +199,7 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 		this._data = this.db.read();
 		this.valueChanged();
 		// force clean db, because file size could double
-		MicroDBJanitor.cleanUpSync(this._dbRef);
+		MicroDBJanitor.cleanUpSync(this.dbRef);
 	};
 
 	// delete a record

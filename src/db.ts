@@ -26,10 +26,12 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 
 	readonly janitor: MicroDBJanitor | undefined = undefined;
 
+	// @internal
 	_getCallbackArguments = (): ExtraArgument => ({
 		base: this,
 	});
 
+	// @internal
 	_currentValue = (): MicroDBData => this.currentData;
 
 	constructor(options: Partial<MicroDBOptions> = {}) {

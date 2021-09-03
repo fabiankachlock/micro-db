@@ -47,7 +47,7 @@ export class MicroDBMS {
 
 		if (driver) {
 			driver.close();
-			MicroDBMS.globalJanitor?.deleteDatabase(driver._dbRef);
+			MicroDBMS.globalJanitor?.deleteDatabase(driver.dbRef);
 			delete MicroDBMS.tables[name];
 		}
 	};

@@ -2,6 +2,7 @@ import { SubscriptionCallback, SubscriptionOptions } from './interface';
 import { Subscribeable, SubscriptionManager } from './subscriptionManager';
 
 export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subscribeable<Value, CallbackArguments> {
+	// @internal
 	_subscriptionManager: SubscriptionManager<Value, CallbackArguments>;
 
 	constructor() {
@@ -13,6 +14,7 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 
 	protected handlers: (() => void)[] = [];
 
+	// @internal
 	_onValueChange = (handler: () => void) => {
 		this.handlers.push(handler);
 	};

@@ -20,10 +20,12 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 		return this.dbs;
 	}
 
+	// @internal
 	_getCallbackArguments = (): ExtraArgument => ({
 		janitor: this,
 	});
 
+	// @internal
 	_currentValue = (): {} => ({});
 
 	constructor(cron: string = '00 00 00 * * *' /* every day at midnight */, ...dbs: MicroDBBase[]) {
