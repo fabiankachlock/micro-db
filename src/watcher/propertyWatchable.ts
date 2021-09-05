@@ -37,13 +37,13 @@ export abstract class MicroDBPropertyWatchable<Value, CallbackArguments> extends
 	$watchPropertyNext = <P extends keyof Value>(
 		property: P,
 		callback: SubscriptionCallback<Value[P], CallbackArguments>,
-		options: Partial<SubscriptionOptions<Value[P]>> = {},
-		times: number = 1
+		times: number = 1,
+		options: Partial<SubscriptionOptions<Value[P]>> = {}
 	) => {
 		return this.$watchNext(
 			(value, args, sub) => callback(value[property], args, sub),
-			this.mergeOptions(property, options),
-			times
+			times,
+			this.mergeOptions(property, options)
 		);
 	};
 }

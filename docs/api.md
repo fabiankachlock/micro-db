@@ -436,8 +436,8 @@ Watch for the next value change.
 | argument | type                                                                                          | default    |
 | -------- | --------------------------------------------------------------------------------------------- | ---------- |
 | callback | [`SubscriptionCallback<Value, CallbackArguments>`](#subscriptioncallbackvalue-extraarguments) | (required) |
-| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                | {}         |
 | times    | `number`                                                                                      | 1          |
+| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                | {}         |
 
 Returns: [`Subscription`](#subscription)
 
@@ -472,8 +472,8 @@ Watch for the next property change.
 | -------- | --------------------------------------------------------------------------------------------- | ---------- |
 | property | `P extends keyof Value`                                                                       | (required) |
 | callback | [`SubscriptionCallback<Value, CallbackArguments>`](#subscriptioncallbackvalue-extraarguments) | (required) |
-| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                | {}         |
 | times    | `number`                                                                                      | 1          |
+| options  | [`Partial<SubscriptionOptions<Value>>`](#subscriptionoptionst)                                | {}         |
 
 Returns: [`Subscription`](#subscription)
 

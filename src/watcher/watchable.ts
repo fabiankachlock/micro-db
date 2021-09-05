@@ -34,8 +34,8 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 
 	$watchNext = (
 		callback: SubscriptionCallback<Value, CallbackArguments>,
-		options: Partial<SubscriptionOptions<Value>> = {},
-		times: number = 1
+		times: number = 1,
+		options: Partial<SubscriptionOptions<Value>> = {}
 	) => {
 		// init as not called
 		let numberOfCalls = 0;

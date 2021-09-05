@@ -98,7 +98,7 @@ describe('micro-db/MicroDBWatchable tests', () => {
 
 			let called = false;
 
-			target.$watchNext(callback, {
+			target.$watchNext(callback, 1, {
 				predicate: () => {
 					if (called) {
 						return true;
