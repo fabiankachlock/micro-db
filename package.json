@@ -1,6 +1,6 @@
 {
   "name": "node-micro-db",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "lib/index.js",
   "files": [
     "lib/**/*"
@@ -9,16 +9,16 @@
   "repository": "https://github.com/fabiankachlock/micro-db",
   "author": "Fabian Kachlock",
   "license": "MIT",
-	"description": "micro-db is a lightweight, (by default) json-based, file-based, zero config database for nodejs.",
-	"keywords": [
-		"nodejs",
-		"db",
-		"database",
-		"small",
-		"json",
-		"typescript",
-		"persistent-storage"
-	],
+  "description": "micro-db is a lightweight, (by default) json-based, file-based, zero config database for nodejs.",
+  "keywords": [
+    "nodejs",
+    "db",
+    "database",
+    "small",
+    "json",
+    "typescript",
+    "persistent-storage"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest --config jestconfig.json",
