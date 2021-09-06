@@ -31,7 +31,7 @@ npm version $1
 
 echo "bumped version"
 newVersion=$(npm info node-micro-db version)
-echo "new version newVersion"
+echo "new version $newVersion"
 
 echo "publishing..."
 git push --tags

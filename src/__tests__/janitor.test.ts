@@ -123,4 +123,29 @@ describe('micro-db/DBBase tests', () => {
 		expect(readFile(dbPath)).toEqual(serializer.serializeObject(key, data1));
 		cronjobJanitor.kill();
 	});
+
+	it('should restart cronjob', async () => {
+		const cb = jest.fn(() => {});
+
+		const target = new MicroDBJanitor('* * * * * *');
+		target.$watch(cb);
+
+		target.kill();
+		target.restart();
+
+		await sleep(1250);
+
+		expect(cb).toBeCalled();
+
+		target.kill();
+	});
+
+	it('should not restart when running', () => {
+		const target = new MicroDBJanitor('* * * * * *');
+		const nextDate = target['job']?.nextInvocation();
+		target.restart();
+		const afterRestartDate = target['job']?.nextInvocation();
+		target.kill();
+		expect(nextDate).toEqual(afterRestartDate);
+	});
 });

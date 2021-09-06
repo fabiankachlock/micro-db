@@ -8,6 +8,10 @@ export class MicroDBMS {
 
 	private static tables: Record<string, MicroDBDriver<unknown>> = {};
 
+	static get allTables(): Record<string, MicroDBDriver<unknown>> {
+		return { ...MicroDBMS.tables };
+	}
+
 	static globalJanitor: MicroDBJanitor | undefined = undefined;
 
 	static setFolderPath = (folderPath: string) => {

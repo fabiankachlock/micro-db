@@ -12,7 +12,7 @@ type ExtraArgument = {
 // The MicroDBJanitor cleans up data overhead and reduces database file size.
 // It can be used either as global instance for batching cleanups with registerDatabase & deleteDatabase or as db-personal instance
 export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
-	private job: Job;
+	private job: Job | null; // job gets null when canceled
 
 	private dbs: MicroDBBase[];
 
@@ -28,12 +28,17 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	// @internal
 	_currentValue = (): {} => ({});
 
-	constructor(cron: string = '00 00 00 * * *' /* every day at midnight */, ...dbs: MicroDBBase[]) {
+	constructor(readonly cronString: string = '00 00 00 * * *' /* every day at midnight */, ...dbs: MicroDBBase[]) {
 		super();
 
-		this.job = schedule.scheduleJob(`micro-db janitor ${uuid()}`, cron, this.cleanUpCallBack);
+		this.job = null;
 		this.dbs = dbs;
+		this.setupJob();
 	}
+
+	private setupJob = () => {
+		this.job = schedule.scheduleJob(`micro-db janitor ${uuid()}`, this.cronString, this.cleanUpCallBack);
+	};
 
 	private cleanUpCallBack = async () => {
 		this.valueChanged();
@@ -65,6 +70,15 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	};
 
 	public kill = () => {
-		this.job.cancel(false);
+		if (this.job) {
+			this.job.cancel(false);
+			this.job = null;
+		}
+	};
+
+	public restart = () => {
+		if (!this.job) {
+			this.setupJob();
+		}
 	};
 }
