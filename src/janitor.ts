@@ -65,6 +65,8 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	};
 
 	public kill = () => {
-		this.job.cancel(false);
+		if (this.job) {
+			this.job.cancel(false);
+		}
 	};
 }
