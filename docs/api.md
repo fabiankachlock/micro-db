@@ -1,6 +1,6 @@
 # micro-db API
 
-_Version: 1.0.6_
+_Version: 1.0.7_
 
 # Contents
 
@@ -339,6 +339,12 @@ Returns all registered databases.
 
 Type: [`MicroDBBase`](#microdbbase)`[]`
 
+### `MicroDBJanitor.cronString`
+
+Returns the cronjob configuration.
+
+Type: `readonly string`
+
 ### `static async MicroDBJanitor.cleanUp()`
 
 Cleans the database passed as an argument asynchronously.
@@ -381,6 +387,10 @@ Delete a registered database.
 ### `MicroDBJanitor.kill()`
 
 Stops the running cronjob of the janitor.
+
+### `MicroDBJanitor.restart()`
+
+Restarts a stopped janitor.
 
 ---
 
