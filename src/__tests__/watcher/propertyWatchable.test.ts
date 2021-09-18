@@ -1,4 +1,5 @@
 import { MicroDBPropertyWatchable } from '../../watcher/propertyWatchable';
+import { createWaiter } from '../helper.test';
 
 export class MockWatchable extends MicroDBPropertyWatchable<{ id1: number; id2: number }, {}> {
 	private state = { id1: 0, id2: 0 };
@@ -53,7 +54,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 	});
 
 	// see README.md -> Gotchas -> $watchPropertyNext()
-	it('should prove gotcha in action', () => {
+	it('should prove gotcha in action', async () => {
 		const cb = jest.fn(() => {});
 
 		//! setup NO initial value
@@ -75,6 +76,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 		//! Workaround
 		const cb1 = jest.fn(() => {});
 		const newIterationWatchable = new MockWatchable();
+		const [wait, done] = createWaiter();
 
 		setImmediate(() => {
 			newIterationWatchable.$watchPropertyNext('id1', cb1);
@@ -85,6 +87,78 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 
 			newIterationWatchable.trigger('id1');
 			expect(cb1).toBeCalledTimes(1); // should work as intended
+			done();
 		});
+
+		await wait;
+	});
+
+	it('should work with extra predicate', async () => {
+		const cb = jest.fn(() => {});
+		let callCount = 0;
+		const pred = () => callCount++ > 2;
+
+		const watchable = new MockWatchable();
+		const [wait, done] = createWaiter();
+
+		setImmediate(() => {
+			watchable.$watchProperty('id1', cb, {
+				predicate: pred,
+			});
+
+			watchable.trigger('id1'); // custom pred refuses
+			watchable.trigger('id1'); // custom pred refuses
+			watchable.trigger('id1'); // custom pred refuses
+			watchable.trigger('id1');
+
+			expect(cb).toBeCalledTimes(1);
+			done();
+		});
+
+		await wait;
+	});
+
+	it('should work with times and extra predicate', async () => {
+		const cb = jest.fn(() => {});
+		let callCount = 0;
+		const pred = () => callCount++ > 2;
+
+		const watchable = new MockWatchable();
+		const [wait, done] = createWaiter();
+
+		setImmediate(() => {
+			watchable.$watchPropertyNext('id1', cb, 2, {
+				predicate: pred,
+			});
+
+			watchable.trigger('id1'); // custom pred refuses
+			watchable.trigger('id1'); // custom pred refuses
+			watchable.trigger('id1'); // custom pred refuses
+			watchable.trigger('id1');
+			watchable.trigger('id1');
+			watchable.trigger('id1'); // 2 updates exceed
+
+			expect(cb).toBeCalledTimes(2);
+			done();
+		});
+
+		await wait;
+	});
+
+	it('should not throw error when last value is undefined', () => {
+		const cb = jest.fn(() => {});
+		const watchable = new MockWatchable();
+
+		watchable.$watchPropertyNext('id1', cb, 1, {
+			predicate: () => true,
+		});
+
+		expect(cb).toBeCalledTimes(0); // no initial call
+
+		watchable.trigger('id2');
+		expect(cb).toBeCalledTimes(1); //! should trigger even tough it is watching 'id1'
+
+		watchable.trigger('id1');
+		expect(cb).toBeCalledTimes(1); // should not trigger again, because it got called once already
 	});
 });

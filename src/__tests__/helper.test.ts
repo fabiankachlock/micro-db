@@ -4,6 +4,17 @@ export const sleep = (timeout: number) => new Promise(resolve => setTimeout(() =
 
 export const readFile = (path: string): string => fs.readFileSync(path).toString();
 
+export const createWaiter = (): [Promise<{}>, () => void] => {
+	let res = () => {};
+
+	return [
+		new Promise(resolve => {
+			res = () => resolve({});
+		}),
+		res,
+	];
+};
+
 export const saveRemoveFolder = (path: string) => {
 	if (fs.existsSync(path)) {
 		fs.rmSync(path, { recursive: true });
