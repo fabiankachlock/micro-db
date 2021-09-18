@@ -1,6 +1,6 @@
 # micro-db API
 
-_Version: 1.0.7_
+_Version: 1.0.8_
 
 # Contents
 
@@ -10,6 +10,7 @@ _Version: 1.0.7_
   - [`MicroDBDriver`](#microdbdriver)
   - [`MicroDBFacade`](#microdbfacade)
   - [`MicroDBJanitor`](#microdbjanitor)
+  - [`MicroDBMS`](#microdbms)
   - [`Subscription`](#subscription)
 - [Interfaces](#microdbwatchable)
   - [`MicroDBWatchable`](#microdbwatchable)
@@ -391,6 +392,61 @@ Stops the running cronjob of the janitor.
 ### `MicroDBJanitor.restart()`
 
 Restarts a stopped janitor.
+
+---
+
+## MicroDBMS
+
+The MicroDBMS class is a small container for managing multiple MicroDB's with an ease. It also allows you to sync janitor cleanups easily.
+
+> It is intended to use with the static methods and not as instance.
+
+### `static MicroDBMS.allTables`
+
+Returns all active tables as [`MicroDBDriver`](#microdbdriver).
+
+Type: `Record<string, MicroDBDriver<unknown>>`
+
+### `static MicroDBMS.globalJanitor`
+
+Returns a global [`MicroDBJanitor`](#microdbjanitor) instance.
+
+Type: [`MicroDBJanitor`](#microdbjanitor)` | undefined`
+
+### `static MicroDBMS.setFolderPath()`
+
+Set the path of the folder, where all database files will get stored.
+
+| argument   | type     |
+| ---------- | -------- |
+| folderPath | `string` |
+
+### `static MicroDBMS.setJanitorCronjob()`
+
+Set the cronjob of the global janitor.
+
+| argument | type     |
+| -------- | -------- |
+| cron     | `string` |
+
+### `static MicroDBMS.table<T>()`
+
+Create a new table in the DBMS's folder path.
+
+| argument     | type                                             |
+| ------------ | ------------------------------------------------ |
+| name         | `string`                                         |
+| extraOptions | `Partial<`[`MicroDBOptions`](#microdboptions)`>` |
+
+Returns: [`MicroDBDriver`](#microdbdriver)`<T>`
+
+### `static MicroDBMS.deleteTable()`
+
+Delete a active table.
+
+| argument | type     |
+| -------- | -------- |
+| name     | `string` |
 
 ---
 
