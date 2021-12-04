@@ -2,6 +2,8 @@
 
 _Version: 1.0.8_
 
+> The micro-db api is synchronous by design.
+
 # Contents
 
 - [Classes](#microdb)
