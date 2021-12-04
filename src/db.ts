@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import path from 'path';
 import { MicroDBJanitor } from './janitor';
-import type { MicroDBData, MicroDBOptions, MicroDBSerializer } from './micro-db';
+import type { MicroDBData, MicroDBOptions } from './micro-db';
 import { JSONSerializer } from './serializer/JSONSerializer';
 import { MicroDBPropertyWatchable } from './watcher/propertyWatchable';
 
@@ -10,21 +10,23 @@ export const MicroDBDefaultOptions: MicroDBOptions = {
 	serializer: new JSONSerializer(),
 	janitorCronjob: undefined,
 	defaultData: undefined,
+	lazy: false,
 };
 
 type ExtraArgument = {
 	base: MicroDBBase;
 };
 export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgument> {
-	private writeStream: fs.WriteStream;
+	private writeStream: fs.WriteStream | undefined;
 
 	private currentData: MicroDBData = {};
 
-	readonly fileName: string;
+	private options: MicroDBOptions;
 
-	readonly dataSerializer: MicroDBSerializer;
-
-	readonly janitor: MicroDBJanitor | undefined = undefined;
+	private _janitor: MicroDBJanitor | undefined = undefined;
+	public get janitor(): MicroDBJanitor | undefined {
+		return this._janitor;
+	}
 
 	// @internal
 	_getCallbackArguments = (): ExtraArgument => ({
@@ -42,31 +44,34 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 			...options,
 		};
 
-		this.fileName = resolvedOptions.fileName;
-		this.dataSerializer = resolvedOptions.serializer;
+		this.options = resolvedOptions;
 
+		if (!resolvedOptions.lazy) this.initialize(resolvedOptions);
+	}
+
+	private initialize = (options: MicroDBOptions) => {
 		const newFileCreated = this.ensureDatabaseFile();
 		if (!newFileCreated) this.readRawData();
 
-		this.writeStream = fs.createWriteStream(this.fileName, { flags: 'a' });
+		this.writeStream = fs.createWriteStream(this.options.fileName, { flags: 'a' });
 
 		// write default data when a new file is created
-		if (newFileCreated && resolvedOptions.defaultData) {
-			this.writeBatch(resolvedOptions.defaultData);
+		if (newFileCreated && options.defaultData) {
+			this.writeBatch(options.defaultData);
 		}
 
 		// setup personal janitor if needed
-		if (resolvedOptions.janitorCronjob) {
-			this.janitor = new MicroDBJanitor(resolvedOptions.janitorCronjob, this);
+		if (options.janitorCronjob) {
+			this._janitor = new MicroDBJanitor(options.janitorCronjob, this);
 		}
-	}
+	};
 
 	private ensureDatabaseFile = (): boolean => {
 		// create database file if needed
-		if (!fs.existsSync(this.fileName)) {
-			this.ensureDirectoryExistence(this.fileName);
+		if (!fs.existsSync(this.options.fileName)) {
+			this.ensureDirectoryExistence(this.options.fileName);
 
-			fs.openSync(this.fileName, 'w');
+			fs.openSync(this.options.fileName, 'w');
 			return true;
 		}
 		return false;
@@ -81,8 +86,8 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 	};
 
 	private readRawData = () => {
-		const initialRawData = fs.readFileSync(this.fileName);
-		const initialData = this.dataSerializer.deserialize(initialRawData.toString());
+		const initialRawData = fs.readFileSync(this.options.fileName);
+		const initialData = this.options.serializer.deserialize(initialRawData.toString());
 		this.currentData = initialData;
 	};
 
@@ -98,7 +103,8 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 		} else {
 			this.currentData[id] = data;
 		}
-		this.writeStream.write(this.dataSerializer.serializeObject(id, data));
+		if (!this.writeStream) this.initialize(this.options);
+		this.writeStream!.write(this.options.serializer.serializeObject(id, data));
 		this.valueChanged();
 	};
 
@@ -111,15 +117,23 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 			} else {
 				this.currentData[key] = value;
 			}
-			dataToWrite += this.dataSerializer.serializeObject(key, value);
+			dataToWrite += this.options.serializer.serializeObject(key, value);
 		}
-		this.writeStream.write(dataToWrite);
+		if (!this.writeStream) this.initialize(this.options);
+		this.writeStream!.write(dataToWrite);
 		this.valueChanged();
+	};
+
+	// free up memory space
+	deallocate = () => {
+		this.currentData = {};
+		this.writeStream?.end();
+		this.writeStream = undefined;
 	};
 
 	// close write stream & kill janitor
 	close = () => {
-		this.writeStream.end();
+		this.writeStream?.end();
 		this.janitor?.kill();
 	};
 }

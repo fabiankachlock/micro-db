@@ -11,6 +11,7 @@ export interface MicroDBOptions {
 	defaultData: MicroDBData | undefined;
 	serializer: MicroDBSerializer;
 	janitorCronjob: string | undefined;
+	lazy: boolean;
 }
 
 export type WherePredicate<T> = (object: MicroDBEntry<T>) => boolean;
