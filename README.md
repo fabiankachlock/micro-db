@@ -45,21 +45,32 @@ For more information about available methods, check out the [API](#api)
 
 ## Contents
 
-- [Why micro-db](#why-micro-db)
-- [Features](#features)
-  - [Typescript Support](#typescript-support)
-  - [Debuggable](#debuggable)
-  - [Expandable](#expandable)
-  - [Built in Janitor](#built-in-janitor)
-  - [Easily Replaceable](#easily-replaceable)
-- [When to use micro-db](#when-to-use-micro-db)
-- [When **NOT** to use micro-db](#when-not-to-use-micro-db)
-  - [How to deal with space constraints](#how-to-deal-with-space-constraints)
-- [Gotchas](#gotchas)
-- [Patterns](#patterns)
-  - [Facade Pattern](#facade-pattern)
-  - [id-aware Records](#id-aware-records)
-- [API](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md)
+- [micro-db](#micro-db)
+	- [Installation](#installation)
+	- [🪄 Quickstart](#-quickstart)
+	- [Contents](#contents)
+	- [Why micro-db](#why-micro-db)
+		- [Why micro-db is outstanding](#why-micro-db-is-outstanding)
+	- [Features](#features)
+		- [Typescript Support](#typescript-support)
+		- [Debuggable](#debuggable)
+		- [Expandable](#expandable)
+		- [Built in Janitor](#built-in-janitor)
+		- [Easily Replaceable](#easily-replaceable)
+	- [When to use micro-db](#when-to-use-micro-db)
+	- [When **NOT** to use micro-db](#when-not-to-use-micro-db)
+		- [How to deal with space constraints](#how-to-deal-with-space-constraints)
+	- [Gotchas](#gotchas)
+		- [`undefined` vs `null` values](#undefined-vs-null-values)
+		- [`$watchPropertyNext()`](#watchpropertynext)
+		- [RAM usage](#ram-usage)
+		- [Multiple `MicroDBBase.read`](#multiple-microdbbaseread)
+	- [Patterns](#patterns)
+		- [Facade Pattern](#facade-pattern)
+			- [Example](#example)
+			- [Example (using instance methods rather than static ones)](#example-using-instance-methods-rather-than-static-ones)
+		- [id-aware Records](#id-aware-records)
+			- [Example](#example-1)
 
 ## Why micro-db
 
@@ -132,13 +143,21 @@ This results in the fact, that all `$watchProperty()` and `$watchPropertyNext()`
 
 See example [in tests](https://github.com/fabiankachlock/micro-db/blob/main/src/__tests__/watcher/propertyWatchable.test.ts#L62-L73)
 
+### RAM usage
+
+micro-db uses a fs.WriteStream under the hood for appending to the database file.This means for appending data the not the whole database file needs to be in RAM. BUT, since the database file gets evaluated at construction, the whole data contained in the database file will stored in RAM (inside a javascript object).
+
+### Multiple `MicroDBBase.read`
+
+For performance reasons changes in the database are directly applied to the internal data object. This means micro-db's will only work with one active [`MicroDBBase`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbbase) or [`MicroDBDriver`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbdriver) at the time. Changes to the database file will not be recognized after initialization.
+
 ## Patterns
 
 ### Facade Pattern
 
 micro-db encourages you, to hide bare-bones database operations, like `select` or `update` statements from the rest of you application using the [Facade pattern](https://en.wikipedia.org/wiki/Facade_pattern)
 
-To implement this in your code, you can extend the [`MicroDBFacade`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbfacade) class. The `MicroDBFacade` provides the same api as a [`MicroDBDriver`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbdriver), but all methods are protected, which means they are inaccessible from outside of the class.
+To implement this in your code, you can extend the [`MicroDBFacade`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbfacade) class. The [`MicroDBFacade`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbfacade) provides the same api as a [`MicroDBDriver`](https://github.com/fabiankachlock/micro-db/blob/docs/docs/api.md#microdbdriver), but all methods are protected, which means they are inaccessible from outside of the class.
 
 The example below shows how straight forward this approach is:
 
