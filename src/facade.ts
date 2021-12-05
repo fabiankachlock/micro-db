@@ -29,7 +29,7 @@ export class MicroDBFacade<T extends MicroDBData> {
 			janitorCronjob: undefined,
 		});
 
-		this.db = new MicroDBDriver(db);
+		this.db = MicroDBDriver.forDatabase(db);
 	}
 
 	// close db

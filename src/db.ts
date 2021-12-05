@@ -21,7 +21,7 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 
 	private currentData: MicroDBData = {};
 
-	private options: MicroDBOptions;
+	readonly config: MicroDBOptions;
 
 	private _janitor: MicroDBJanitor | undefined = undefined;
 	public get janitor(): MicroDBJanitor | undefined {
@@ -44,7 +44,7 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 			...options,
 		};
 
-		this.options = resolvedOptions;
+		this.config = resolvedOptions;
 
 		if (!resolvedOptions.lazy) this.initialize(resolvedOptions);
 	}
@@ -53,7 +53,7 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 		const newFileCreated = this.ensureDatabaseFile();
 		if (!newFileCreated) this.readRawData();
 
-		this.writeStream = fs.createWriteStream(this.options.fileName, { flags: 'a' });
+		this.writeStream = fs.createWriteStream(this.config.fileName, { flags: 'a' });
 
 		// write default data when a new file is created
 		if (newFileCreated && options.defaultData) {
@@ -68,10 +68,10 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 
 	private ensureDatabaseFile = (): boolean => {
 		// create database file if needed
-		if (!fs.existsSync(this.options.fileName)) {
-			this.ensureDirectoryExistence(this.options.fileName);
+		if (!fs.existsSync(this.config.fileName)) {
+			this.ensureDirectoryExistence(this.config.fileName);
 
-			fs.openSync(this.options.fileName, 'w');
+			fs.openSync(this.config.fileName, 'w');
 			return true;
 		}
 		return false;
@@ -86,13 +86,14 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 	};
 
 	private readRawData = () => {
-		const initialRawData = fs.readFileSync(this.options.fileName);
-		const initialData = this.options.serializer.deserialize(initialRawData.toString());
+		const initialRawData = fs.readFileSync(this.config.fileName);
+		const initialData = this.config.serializer.deserialize(initialRawData.toString());
 		this.currentData = initialData;
 	};
 
 	// return current data
 	read = (): MicroDBData => {
+		if (!this.writeStream) this.initialize(this.config);
 		return this.currentData;
 	};
 
@@ -103,8 +104,8 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 		} else {
 			this.currentData[id] = data;
 		}
-		if (!this.writeStream) this.initialize(this.options);
-		this.writeStream!.write(this.options.serializer.serializeObject(id, data));
+		if (!this.writeStream) this.initialize(this.config);
+		this.writeStream!.write(this.config.serializer.serializeObject(id, data));
 		this.valueChanged();
 	};
 
@@ -117,9 +118,9 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 			} else {
 				this.currentData[key] = value;
 			}
-			dataToWrite += this.options.serializer.serializeObject(key, value);
+			dataToWrite += this.config.serializer.serializeObject(key, value);
 		}
-		if (!this.writeStream) this.initialize(this.options);
+		if (!this.writeStream) this.initialize(this.config);
 		this.writeStream!.write(dataToWrite);
 		this.valueChanged();
 	};

@@ -48,15 +48,15 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	};
 
 	public static cleanUp = async (db: MicroDBBase) => {
-		const content = await fs.readFile(db.fileName);
-		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
-		await fs.writeFile(db.fileName, db.dataSerializer.serializeAll(data));
+		const content = await fs.readFile(db.config.fileName);
+		const data = db.config.serializer.deserialize(content.toString('utf-8'));
+		await fs.writeFile(db.config.fileName, db.config.serializer.serializeAll(data));
 	};
 
 	public static cleanUpSync = (db: MicroDBBase) => {
-		const content = fsSync.readFileSync(db.fileName);
-		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
-		fsSync.writeFileSync(db.fileName, db.dataSerializer.serializeAll(data));
+		const content = fsSync.readFileSync(db.config.fileName);
+		const data = db.config.serializer.deserialize(content.toString('utf-8'));
+		fsSync.writeFileSync(db.config.fileName, db.config.serializer.serializeAll(data));
 	};
 
 	public cleanAll = this.cleanUpCallBack;
@@ -66,7 +66,7 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	};
 
 	public deleteDatabase = (db: MicroDBBase) => {
-		this.dbs = this.dbs.filter(d => d.fileName !== db.fileName);
+		this.dbs = this.dbs.filter(d => d.config.fileName !== db.config.fileName);
 	};
 
 	public kill = () => {
