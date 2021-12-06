@@ -7,14 +7,17 @@ import type { MicroDBData, MicroDBSerializer } from '../micro-db';
  */
 
 export class JSONSerializer implements MicroDBSerializer {
-	serializeObject = (key: string, value: any) => `${key}:${JSON.stringify(value)}\n`;
+	serializeObject = async (key: string, value: any) => `${key}:${JSON.stringify(value)}\n`;
 
-	serializeAll = (data: MicroDBData) =>
-		Object.entries(data)
-			.map(entry => this.serializeObject(entry[0], entry[1])) // serialize every single key-value-pair
-			.join(''); // and combine them into a single string
+	serializeAll = async (data: MicroDBData) => {
+		let finalString = '';
+		for (const entry of Object.entries(data)) {
+			finalString += await this.serializeObject(entry[0], entry[1]); // serialize every single key-value-pair
+		}
+		return finalString;
+	};
 
-	deserialize = (raw: string) => {
+	deserialize = async (raw: string) => {
 		const rows = raw.split('\n');
 		const pairs = rows.map(entry => {
 			// invalid line
