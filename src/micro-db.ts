@@ -1,9 +1,9 @@
 export type MicroDBData = Record<string, any>;
 
 export interface MicroDBSerializer {
-	serializeObject(key: string, value: any): string;
-	serializeAll(data: MicroDBData): string;
-	deserialize(raw: string): MicroDBData;
+	serializeObject(key: string, value: any): Promise<string>;
+	serializeAll(data: MicroDBData): Promise<string>;
+	deserialize(raw: string): Promise<MicroDBData>;
 }
 
 export interface MicroDBOptions {

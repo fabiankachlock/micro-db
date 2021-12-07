@@ -2,43 +2,49 @@ import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
 import { JSONSerializer } from '../serializer/JSONSerializer';
-import { readFile, setupTestDir, sleep, saveRemoveFolder } from './helper.test';
+import { readFile, setupTestDir } from './helper.test';
+import mock from 'mock-fs';
+
+let count = 0;
+const nextPath = (dbFile: string = 'test.db') => path.join((++count).toString(), dbFile);
+const createEnv = (dbFile: string = 'test.db') => ({
+	dbFile: path.join((++count).toString(), dbFile),
+	db: new MicroDBBase({
+		fileName: path.join(count.toString(), dbFile),
+		lazy: true,
+	}),
+});
 
 describe('micro-db/DBBase tests', () => {
-	let db: MicroDBBase;
 	const serializer = new JSONSerializer();
-	const dbPath = path.join('_db-tests', 'test.db');
-
-	beforeAll(() => {
-		setupTestDir('_db-tests');
-	});
 
 	beforeEach(() => {
-		db = new MicroDBBase({
-			fileName: dbPath,
-		});
+		mock({});
 	});
 
-	afterEach(() => {
-		db.close();
-		saveRemoveFolder('_db-tests');
+	afterAll(() => {
+		mock.restore();
 	});
 
 	it('should write data correct', async () => {
-		expect(readFile(dbPath)).toEqual('');
+		const { db, dbFile } = createEnv();
+		await db.initialize();
+		expect(readFile(dbFile)).toEqual('');
 
 		const data = {
 			amIHere: 0,
 		};
-		db.write('abc', data);
+		await db.write('abc', data);
 
-		await sleep(150);
-
-		expect(readFile(dbPath)).toEqual(serializer.serializeObject('abc', data));
+		expect(readFile(dbFile)).toEqual(await serializer.serializeObject('abc', data));
+		await db.close();
 	});
 
 	it('should batch write data correct', async () => {
-		expect(readFile(dbPath)).toEqual('');
+		const { db, dbFile } = createEnv();
+		await db.initialize();
+
+		expect(readFile(dbFile)).toEqual('');
 
 		const data = {
 			id1: {
@@ -48,69 +54,83 @@ describe('micro-db/DBBase tests', () => {
 				test: true,
 			},
 		};
-		db.writeBatch(data);
+		await db.writeBatch(data);
 
-		await sleep(150);
-
-		expect(readFile(dbPath)).toEqual(serializer.serializeAll(data));
+		expect(readFile(dbFile)).toEqual(await serializer.serializeAll(data));
+		await db.close();
 	});
 
-	it('should overwrite correct', () => {
+	it('should overwrite correct', async () => {
+		const { db } = createEnv();
+		await db.initialize();
+
 		const data0 = {
 			someString: 'abc',
 		};
 
 		// write initial data
-		db.write('id', data0);
-		expect(db.read()).toEqual({ id: data0 });
+		await db.write('id', data0);
+		expect(await db.read()).toEqual({ id: data0 });
 
 		const data1 = {
 			someString: 'def',
 		};
 
 		// overwrite initial data
-		db.write('id', data1);
-		expect(db.read()).toEqual({ id: data1 });
+		await db.write('id', data1);
+		expect(await db.read()).toEqual({ id: data1 });
+		await db.close();
 	});
 
-	it('should delete correct', () => {
+	it('should delete correct', async () => {
+		const { db } = createEnv();
+		await db.initialize();
+
 		const data = {
 			someString: 'abc',
 		};
 
 		// write initial data
-		db.write('id', data);
-		expect(db.read()).toEqual({ id: data });
+		await db.write('id', data);
+		expect(await db.read()).toEqual({ id: data });
 
 		// delete initial data
-		db.write('id', undefined);
-		expect(db.read()).toEqual({});
+		await db.write('id', undefined);
+		expect(await db.read()).toEqual({});
+		await db.close();
 	});
 
-	it('should differentiate undefined from null correct', () => {
+	it('should differentiate undefined from null correct', async () => {
+		const { db } = createEnv();
+		await db.initialize();
+
 		const data = {
 			someString: 'abc',
 		};
 
 		// write initial data
-		db.write('id', data);
-		expect(db.read()).toEqual({ id: data });
+		await db.write('id', data);
+		expect(await db.read()).toEqual({ id: data });
 
 		// delete initial data
-		db.write('id', undefined);
-		expect(db.read()).toEqual({});
+		await db.write('id', undefined);
+		expect(await db.read()).toEqual({});
 
 		// write again
-		db.write('id', data);
-		expect(db.read()).toEqual({ id: data });
+		await db.write('id', data);
+		expect(await db.read()).toEqual({ id: data });
 
 		// set to null
-		db.write('id', null);
+		await db.write('id', null);
 		// should not get deleted
-		expect(db.read()).toEqual({ id: null });
+		expect(await db.read()).toEqual({ id: null });
+		await db.close();
 	});
 
-	it('should batch delete correct', () => {
+	it('should batch delete correct', async () => {
+		const { db } = createEnv();
+		await db.initialize();
+
 		const data = {
 			id: {
 				someString: 'abc',
@@ -118,23 +138,36 @@ describe('micro-db/DBBase tests', () => {
 		};
 
 		// write initial data
-		db.writeBatch(data);
-		expect(db.read()).toEqual(data);
+		await db.writeBatch(data);
+		expect(await db.read()).toEqual(data);
 
 		// delete initial data
-		db.writeBatch({
+		await db.writeBatch({
 			id: undefined,
 		});
-		expect(db.read()).toEqual({});
+		expect(await db.read()).toEqual({});
+		await db.close();
 	});
 
-	it('should close without errors', () => {
-		expect(() => {
-			db.close();
-		}).not.toThrow();
+	it('should close without errors', async () => {
+		const { db, dbFile } = createEnv();
+		//try {
+		await db.initialize();
+		// } catch (e) {
+		// 	console.log(e);
+		// 	console.log(vol.toJSON());
+		// }
+
+		return new Promise(res => {
+			expect(async () => {
+				await db.close();
+				res({});
+			}).not.toThrow();
+		});
 	});
 
 	it('should setup initial data correct', async () => {
+		const dbFile = nextPath();
 		const initialData = {
 			id1: {
 				test: true,
@@ -143,50 +176,61 @@ describe('micro-db/DBBase tests', () => {
 
 		const dataDB = new MicroDBBase({
 			defaultData: initialData,
-			fileName: path.join('_db-tests', 'test-default-data.db'),
+			fileName: dbFile,
+			lazy: true,
 		});
+		await dataDB.initialize();
 
-		expect(dataDB.read()).toEqual(initialData);
+		expect(await dataDB.read()).toEqual(initialData);
 
-		await sleep(150);
-
-		const stored = readFile(path.join('_db-tests', 'test-default-data.db'));
-		expect(stored).toEqual(serializer.serializeAll(initialData));
+		expect(await serializer.serializeAll(initialData)).toEqual(readFile(dbFile));
+		await dataDB.close();
 	});
 
-	it('should read data correct', () => {
+	it('should read data correct', async () => {
+		const dbFile = nextPath();
+		setupTestDir(path.dirname(dbFile));
 		const initialData = {
 			id1: {
 				test: true,
 			},
 		};
 
-		const serialized = serializer.serializeAll(initialData);
+		const serialized = await serializer.serializeAll(initialData);
 
-		fs.writeFileSync(path.join('_db-tests', 'test-read.db'), serialized);
+		fs.writeFileSync(dbFile, serialized);
 
 		const dataDB = new MicroDBBase({
-			fileName: path.join('_db-tests', 'test-read.db'),
+			fileName: dbFile,
 		});
 
-		expect(dataDB.read()).toEqual(initialData);
-		dataDB.close();
+		expect(await dataDB.read()).toEqual(initialData);
+		await dataDB.close();
 	});
 
-	it('should create janitor correct', () => {
+	it('should create janitor correct', async () => {
 		const janitorDb = new MicroDBBase({
 			fileName: path.join('_db-tests', 'janitor-test.db'),
 			janitorCronjob: '* * * * * *',
+			lazy: true,
 		});
 
+		await janitorDb.initialize();
+
 		expect(janitorDb.janitor).toBeTruthy();
-		janitorDb.close();
+		await janitorDb.close();
 	});
 
-	it('should init with zero config', () => {
-		expect(() => {
-			const db = new MicroDBBase();
-			db.close();
-		}).not.toThrow();
+	it('should init with zero config', async () => {
+		await new Promise(res => {
+			expect(async () => {
+				const db = new MicroDBBase({
+					lazy: true, // needed for tests to run
+				});
+				await db.initialize();
+				await db.close();
+				res({});
+			}).not.toThrow();
+		});
 	});
 });

@@ -42,21 +42,13 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 
 	private cleanUpCallBack = async () => {
 		this.valueChanged();
-		for (const db of this.dbs) {
-			MicroDBJanitor.cleanUp(db);
-		}
+		return Promise.all(this.dbs.map(db => MicroDBJanitor.cleanUp(db)));
 	};
 
 	public static cleanUp = async (db: MicroDBBase) => {
 		const content = await fs.readFile(db.config.fileName);
 		const data = db.config.serializer.deserialize(content.toString('utf-8'));
-		await fs.writeFile(db.config.fileName, db.config.serializer.serializeAll(data));
-	};
-
-	public static cleanUpSync = (db: MicroDBBase) => {
-		const content = fsSync.readFileSync(db.config.fileName);
-		const data = db.config.serializer.deserialize(content.toString('utf-8'));
-		fsSync.writeFileSync(db.config.fileName, db.config.serializer.serializeAll(data));
+		await fs.writeFile(db.config.fileName, await db.config.serializer.serializeAll(data));
 	};
 
 	public cleanAll = this.cleanUpCallBack;
@@ -69,14 +61,14 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 		this.dbs = this.dbs.filter(d => d.config.fileName !== db.config.fileName);
 	};
 
-	public kill = () => {
+	public kill = async () => {
 		if (this.job) {
 			this.job.cancel(false);
 			this.job = null;
 		}
 	};
 
-	public restart = () => {
+	public restart = async () => {
 		if (!this.job) {
 			this.setupJob();
 		}

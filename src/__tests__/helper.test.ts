@@ -2,7 +2,7 @@ import fs from 'fs';
 
 export const sleep = (timeout: number) => new Promise(resolve => setTimeout(() => resolve({}), timeout));
 
-export const readFile = (path: string): string => fs.readFileSync(path).toString();
+export const readFile = (path: string): string => (fs.existsSync(path) ? fs.readFileSync(path).toString() : '');
 
 export const createWaiter = (): [Promise<{}>, () => void] => {
 	let res = () => {};

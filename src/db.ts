@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import path from 'path';
+import { createCallbackAwaiter, createWriteStreamAwaiter } from './helper';
 import { MicroDBJanitor } from './janitor';
 import type { MicroDBData, MicroDBOptions } from './micro-db';
 import { JSONSerializer } from './serializer/JSONSerializer';
@@ -16,8 +17,13 @@ export const MicroDBDefaultOptions: MicroDBOptions = {
 type ExtraArgument = {
 	base: MicroDBBase;
 };
+
 export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgument> {
 	private writeStream: fs.WriteStream | undefined;
+
+	get isInitialized(): boolean {
+		return this.writeStream !== undefined;
+	}
 
 	private currentData: MicroDBData = {};
 
@@ -46,95 +52,109 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 
 		this.config = resolvedOptions;
 
-		if (!resolvedOptions.lazy) this.initialize(resolvedOptions);
+		// initialization cant be awaited in constructor...
+		if (!resolvedOptions.lazy) this.initialize();
 	}
 
-	private initialize = (options: MicroDBOptions) => {
-		const newFileCreated = this.ensureDatabaseFile();
-		if (!newFileCreated) this.readRawData();
+	async initialize() {
+		if (this.isInitialized) return; // already initialized
+
+		const newFileCreated = await this.ensureDatabaseFile();
+		if (!newFileCreated) this.currentData = await this.readRawData();
 
 		this.writeStream = fs.createWriteStream(this.config.fileName, { flags: 'a' });
 
 		// write default data when a new file is created
-		if (newFileCreated && options.defaultData) {
-			this.writeBatch(options.defaultData);
+		if (newFileCreated && this.config.defaultData) {
+			await this.writeBatch(this.config.defaultData);
 		}
 
 		// setup personal janitor if needed
-		if (options.janitorCronjob) {
-			this._janitor = new MicroDBJanitor(options.janitorCronjob, this);
+		if (this.config.janitorCronjob) {
+			this._janitor = new MicroDBJanitor(this.config.janitorCronjob, this);
 		}
-	};
+	}
 
-	private ensureDatabaseFile = (): boolean => {
-		// create database file if needed
-		if (!fs.existsSync(this.config.fileName)) {
-			this.ensureDirectoryExistence(this.config.fileName);
+	private async ensureDatabaseFile(): Promise<boolean> {
+		return fs.promises
+			.access(this.config.fileName, fs.constants.F_OK)
+			.then(() => false) // no new file created
+			.catch(async () => {
+				await this.ensureDirectoryExistence(this.config.fileName);
+				await fs.promises.open(this.config.fileName, 'w');
+				return true;
+			});
+	}
 
-			fs.openSync(this.config.fileName, 'w');
-			return true;
-		}
-		return false;
-	};
-
-	private ensureDirectoryExistence = (filePath: string) => {
+	private async ensureDirectoryExistence(filePath: string) {
 		const dirname = path.dirname(filePath);
-		if (fs.existsSync(dirname)) {
-			return true;
-		}
-		fs.mkdirSync(dirname, { recursive: true });
-	};
+		return fs.promises.access(dirname, fs.constants.F_OK).catch(async () => {
+			await fs.promises.mkdir(dirname, { recursive: true });
+		});
+	}
 
-	private readRawData = () => {
-		const initialRawData = fs.readFileSync(this.config.fileName);
-		const initialData = this.config.serializer.deserialize(initialRawData.toString());
-		this.currentData = initialData;
-	};
+	private async readRawData(): Promise<MicroDBData> {
+		const initialRawData = await fs.promises.readFile(this.config.fileName);
+		const initialData = await this.config.serializer.deserialize(initialRawData.toString());
+		return initialData;
+	}
 
 	// return current data
-	read = (): MicroDBData => {
-		if (!this.writeStream) this.initialize(this.config);
+	async read(): Promise<MicroDBData> {
+		if (!this.isInitialized) await this.initialize();
 		return this.currentData;
-	};
+	}
 
 	// store a new data snapshot
-	write = (id: string, data: any) => {
+	async write(id: string, data: any): Promise<void> {
+		const { waiter, callback } = createWriteStreamAwaiter();
+
 		if (data === undefined) {
 			delete this.currentData[id];
 		} else {
 			this.currentData[id] = data;
 		}
-		if (!this.writeStream) this.initialize(this.config);
-		this.writeStream!.write(this.config.serializer.serializeObject(id, data));
+
+		if (!this.isInitialized) await this.initialize();
+		this.writeStream!.write(await this.config.serializer.serializeObject(id, data), callback);
+		await waiter;
 		this.valueChanged();
-	};
+	}
 
 	// store multiple new snapshots
-	writeBatch = (data: MicroDBData) => {
+	async writeBatch(data: MicroDBData): Promise<void> {
+		const { waiter, callback } = createWriteStreamAwaiter();
 		let dataToWrite = '';
+
 		for (const [key, value] of Object.entries(data)) {
 			if (value === undefined) {
 				delete this.currentData[key];
 			} else {
 				this.currentData[key] = value;
 			}
-			dataToWrite += this.config.serializer.serializeObject(key, value);
+			dataToWrite += await this.config.serializer.serializeObject(key, value);
 		}
-		if (!this.writeStream) this.initialize(this.config);
-		this.writeStream!.write(dataToWrite);
+
+		if (!this.isInitialized) await this.initialize();
+		this.writeStream!.write(dataToWrite, callback);
+		await waiter;
 		this.valueChanged();
-	};
+	}
 
 	// free up memory space
-	deallocate = () => {
+	async deallocate() {
+		const { callback, waiter } = createCallbackAwaiter();
 		this.currentData = {};
-		this.writeStream?.end();
+		this.writeStream?.end(callback);
+		await waiter;
 		this.writeStream = undefined;
-	};
+	}
 
 	// close write stream & kill janitor
-	close = () => {
-		this.writeStream?.end();
-		this.janitor?.kill();
-	};
+	async close() {
+		const { callback, waiter } = createCallbackAwaiter();
+		this.writeStream?.end('', callback);
+		await waiter;
+		await this.janitor?.kill();
+	}
 }
