@@ -1,66 +1,59 @@
 import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
-import { saveRemoveFolder, setupTestDir } from './helper.test';
+import { createAwaiter, nextPath } from './helper.test';
+import mock from 'mock-fs';
 
-const dir = '_fs-tests';
+const initDB = async (dbFile: string) => {
+	const { awaiter, done } = createAwaiter();
+	expect(async () => {
+		const db = new MicroDBBase({
+			fileName: dbFile,
+			lazy: true,
+		});
+		await db.initialize();
+		await db.close();
+		done();
+	}).not.toThrow();
+	await awaiter;
+};
 
 describe('micro-db/filesystem tests', () => {
-	beforeAll(() => {
-		setupTestDir(dir);
+	beforeEach(() => {
+		mock();
 	});
 
-	afterAll(() => {
-		saveRemoveFolder(dir);
+	afterEach(() => {
+		mock.restore();
 	});
 
-	it('should create databse file if it doesnt exists', () => {
-		const fileName = path.join(dir, 'test-create-file.db');
+	it('should create database file if it does not exists', async () => {
+		const dbFile = nextPath();
+		expect(fs.existsSync(dbFile)).toBe(false);
 
-		expect(fs.existsSync(fileName)).toBe(false);
+		await initDB(dbFile);
 
-		expect(() => {
-			const db = new MicroDBBase({
-				fileName: fileName,
-			});
-
-			db.close();
-		}).not.toThrow();
-
-		expect(fs.existsSync(fileName)).toBe(true);
+		expect(fs.existsSync(dbFile)).toBe(true);
 	});
 
-	it('should create database file + folders is it doesnt exists', () => {
-		const fileName = path.join(dir, 'some', 'deep', 'nested', 'test-create-file-and-folders.db');
+	it('should create database file + folders is it does not exists', async () => {
+		const dbFile = path.join('some', 'deep', 'nested', 'test-create-file-and-folders.db');
+		expect(fs.existsSync(dbFile)).toBe(false);
 
-		expect(fs.existsSync(fileName)).toBe(false);
+		await initDB(dbFile);
 
-		expect(() => {
-			const db = new MicroDBBase({
-				fileName: fileName,
-			});
-
-			db.close();
-		}).not.toThrow();
-
-		expect(fs.existsSync(fileName)).toBe(true);
+		expect(fs.existsSync(dbFile)).toBe(true);
 	});
 
-	it('should not override existing content', () => {
-		const fileName = path.join(dir, 'do-not-override-content.db');
+	it('should not override existing content', async () => {
+		const dbFile = path.join('do-not-override-content.db');
 		const data = 'some-existing-data: {}';
-		fs.writeFileSync(fileName, data);
+		fs.writeFileSync(dbFile, data);
 
-		expect(fs.readFileSync(fileName).toString()).toEqual(data);
+		expect(fs.readFileSync(dbFile).toString()).toEqual(data);
 
-		expect(() => {
-			const db = new MicroDBBase({
-				fileName: fileName,
-			});
+		await initDB(dbFile);
 
-			db.close();
-		}).not.toThrow();
-
-		expect(fs.readFileSync(fileName).toString()).toEqual(data);
+		expect(fs.readFileSync(dbFile).toString()).toEqual(data);
 	});
 });

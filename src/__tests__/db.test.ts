@@ -2,18 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
 import { JSONSerializer } from '../serializer/JSONSerializer';
-import { readFile, setupTestDir } from './helper.test';
+import { createBaseEnv, nextPath, readFile, setupTestDir } from './helper.test';
 import mock from 'mock-fs';
-
-let count = 0;
-const nextPath = (dbFile: string = 'test.db') => path.join((++count).toString(), dbFile);
-const createEnv = (dbFile: string = 'test.db') => ({
-	dbFile: path.join((++count).toString(), dbFile),
-	db: new MicroDBBase({
-		fileName: path.join(count.toString(), dbFile),
-		lazy: true,
-	}),
-});
 
 describe('micro-db/DBBase tests', () => {
 	const serializer = new JSONSerializer();
@@ -27,7 +17,7 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should write data correct', async () => {
-		const { db, dbFile } = createEnv();
+		const { db, dbFile } = createBaseEnv();
 		await db.initialize();
 		expect(readFile(dbFile)).toEqual('');
 
@@ -41,7 +31,7 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should batch write data correct', async () => {
-		const { db, dbFile } = createEnv();
+		const { db, dbFile } = createBaseEnv();
 		await db.initialize();
 
 		expect(readFile(dbFile)).toEqual('');
@@ -61,7 +51,7 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should overwrite correct', async () => {
-		const { db } = createEnv();
+		const { db } = createBaseEnv();
 		await db.initialize();
 
 		const data0 = {
@@ -83,7 +73,7 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should delete correct', async () => {
-		const { db } = createEnv();
+		const { db } = createBaseEnv();
 		await db.initialize();
 
 		const data = {
@@ -101,7 +91,7 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should differentiate undefined from null correct', async () => {
-		const { db } = createEnv();
+		const { db } = createBaseEnv();
 		await db.initialize();
 
 		const data = {
@@ -128,7 +118,7 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should batch delete correct', async () => {
-		const { db } = createEnv();
+		const { db } = createBaseEnv();
 		await db.initialize();
 
 		const data = {
@@ -150,7 +140,7 @@ describe('micro-db/DBBase tests', () => {
 	});
 
 	it('should close without errors', async () => {
-		const { db, dbFile } = createEnv();
+		const { db, dbFile } = createBaseEnv();
 		//try {
 		await db.initialize();
 		// } catch (e) {
