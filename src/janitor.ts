@@ -1,8 +1,7 @@
-import { MicroDBBase } from './db';
+import fs from 'fs/promises';
 import schedule, { Job } from 'node-schedule';
 import { v4 as uuid } from 'uuid';
-import * as fs from 'fs/promises';
-import * as fsSync from 'fs';
+import { MicroDBBase } from './db';
 import { MicroDBWatchable } from './watcher/watchable';
 
 type ExtraArgument = {
@@ -36,41 +35,41 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 		this.setupJob();
 	}
 
-	private setupJob = () => {
+	private setupJob() {
 		this.job = schedule.scheduleJob(`micro-db janitor ${uuid()}`, this.cronString, this.cleanUpCallBack);
-	};
+	}
 
-	private cleanUpCallBack = async () => {
+	private async cleanUpCallBack() {
 		this.valueChanged();
 		return Promise.all(this.dbs.map(db => MicroDBJanitor.cleanUp(db)));
-	};
+	}
 
-	public static cleanUp = async (db: MicroDBBase) => {
+	public static async cleanUp(db: MicroDBBase) {
 		const content = await fs.readFile(db.config.fileName);
 		const data = db.config.serializer.deserialize(content.toString('utf-8'));
 		await fs.writeFile(db.config.fileName, await db.config.serializer.serializeAll(data));
-	};
+	}
 
 	public cleanAll = this.cleanUpCallBack;
 
-	public registerDatabase = (db: MicroDBBase) => {
+	public registerDatabase(db: MicroDBBase) {
 		this.dbs.push(db);
-	};
+	}
 
-	public deleteDatabase = (db: MicroDBBase) => {
+	public deleteDatabase(db: MicroDBBase) {
 		this.dbs = this.dbs.filter(d => d.config.fileName !== db.config.fileName);
-	};
+	}
 
-	public kill = async () => {
+	public async kill() {
 		if (this.job) {
 			this.job.cancel(false);
 			this.job = null;
 		}
-	};
+	}
 
-	public restart = async () => {
+	public async restart() {
 		if (!this.job) {
 			this.setupJob();
 		}
-	};
+	}
 }

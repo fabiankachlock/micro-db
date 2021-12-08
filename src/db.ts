@@ -66,7 +66,7 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 
 		// write default data when a new file is created
 		if (newFileCreated && this.config.defaultData) {
-			await this.writeBatch(this.config.defaultData);
+			await this.writeBatch(this.config.defaultData); // TODO: check if array ?? or in driver ???
 		}
 
 		// setup personal janitor if needed
