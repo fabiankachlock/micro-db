@@ -1,7 +1,7 @@
 import { SubscriptionCallback, SubscriptionOptions } from './interface';
-import { Subscribeable, SubscriptionManager } from './subscriptionManager';
+import { Subscribables, SubscriptionManager } from './subscriptionManager';
 
-export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subscribeable<Value, CallbackArguments> {
+export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subscribables<Value, CallbackArguments> {
 	// @internal
 	_subscriptionManager: SubscriptionManager<Value, CallbackArguments>;
 

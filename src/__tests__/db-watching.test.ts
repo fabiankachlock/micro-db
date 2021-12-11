@@ -1,25 +1,22 @@
-import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
 import { MicroDBData } from '../micro-db';
 import { SubscriptionCallback } from '../watcher/interface';
-import { setupTestDir, saveRemoveFolder } from './helper.test';
+import { setupTestDir, saveRemoveFolder, createBaseEnv } from './helper.test';
+import mock from 'mock-fs';
 
 describe('micro-db/DBBase/watching tests', () => {
-	const dbPath = path.join('_db-watching-tests', 'test.db');
-
-	beforeAll(() => {
-		setupTestDir('_db-watching-tests');
+	beforeEach(() => {
+		mock();
 	});
 
-	afterAll(() => {
-		saveRemoveFolder('_db-watching-tests');
+	afterEach(() => {
+		mock.restore();
 	});
 
-	it('should notify subscriptions', () => {
-		const db = new MicroDBBase({
-			fileName: dbPath,
-		});
+	it('should notify subscriptions', async () => {
+		const { db } = createBaseEnv();
+		await db.initialize();
 
 		const data = {
 			id: {
@@ -39,11 +36,11 @@ describe('micro-db/DBBase/watching tests', () => {
 
 		const sub = db.$watch(spy);
 
-		db.writeBatch(data);
+		await db.writeBatch(data);
 
 		expect(spy).toBeCalled();
 
-		db.close();
+		await db.close();
 		sub.destroy();
 	});
 });

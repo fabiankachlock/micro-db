@@ -13,7 +13,7 @@ const defaultSubscriptionOptions: SubscriptionOptions<unknown> = {
 	callImmediate: false,
 };
 
-export interface Subscribeable<Value, ExtraArguments> {
+export interface Subscribables<Value, ExtraArguments> {
 	_subscriptionManager: SubscriptionManager<Value, ExtraArguments>;
 	_currentValue(): Value;
 	_getCallbackArguments(): ExtraArguments;
@@ -26,7 +26,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 
 	private lastValue: Value | undefined;
 
-	constructor(private host: Subscribeable<Value, ExtraArguments>) {
+	constructor(private host: Subscribables<Value, ExtraArguments>) {
 		host._onValueChange(this.onValueChange);
 
 		setImmediate(() => {
