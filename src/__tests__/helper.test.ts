@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { MicroDBBase } from '../db';
 import { MicroDBDriver } from '../driver';
+import { MicroDBJanitor } from '../janitor';
 
 export const sleep = (timeout: number) => new Promise(resolve => setTimeout(() => resolve({}), timeout));
 
@@ -35,7 +36,7 @@ export const nextPath = (dbFile: string = 'test.db') => path.join((++count).toSt
 
 export const createBaseEnv = (dbFile: string = 'test.db') => ({
 	dbFile: path.join((++count).toString(), dbFile),
-	driver: new MicroDBBase({
+	db: new MicroDBBase({
 		fileName: path.join(count.toString(), dbFile),
 		lazy: true,
 	}),
@@ -64,6 +65,10 @@ export const createDriverEnv = async <T>(data: T[] = [], dbFile: string = 'test.
 		initialData,
 	};
 };
+
+export const createJanitorEnv = (cron: string) => ({
+	janitor: new MicroDBJanitor(cron),
+});
 
 export const createAwaiter = () => {
 	let resolve = () => {};

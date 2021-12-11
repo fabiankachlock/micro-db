@@ -143,18 +143,22 @@ export class MicroDBBase extends MicroDBPropertyWatchable<MicroDBData, ExtraArgu
 
 	// free up memory space
 	async deallocate() {
-		const { callback, waiter } = createCallbackAwaiter();
+		if (this.writeStream) {
+			const { callback, waiter } = createCallbackAwaiter();
+			this.writeStream?.end(callback);
+			await waiter;
+		}
 		this.currentData = {};
-		this.writeStream?.end(callback);
-		await waiter;
 		this.writeStream = undefined;
 	}
 
 	// close write stream & kill janitor
 	async close() {
-		const { callback, waiter } = createCallbackAwaiter();
-		this.writeStream?.end('', callback);
-		await waiter;
+		if (this.writeStream) {
+			const { callback, waiter } = createCallbackAwaiter();
+			this.writeStream?.end('', callback);
+			await waiter;
+		}
 		await this.janitor?.kill();
 	}
 }
