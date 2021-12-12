@@ -1,7 +1,6 @@
-import path from 'path';
-import { MicroDBDriver } from '../driver';
-import { createAwaiter, createDriverEnv, nextPath, sleep } from './helper.test';
 import mock from 'mock-fs';
+import { MicroDBDriver } from '../driver';
+import { createAwaiter, createDriverEnv } from './helper.test';
 
 describe('micro-db/DBDriver tests', () => {
 	beforeEach(() => {

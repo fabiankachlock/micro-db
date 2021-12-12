@@ -1,5 +1,5 @@
 import { MicroDBPropertyWatchable } from '../../watcher/propertyWatchable';
-import { createWaiter } from '../helper.test';
+import { createAwaiter } from '../helper.test';
 
 export class MockWatchable extends MicroDBPropertyWatchable<{ id1: number; id2: number }, {}> {
 	private state = { id1: 0, id2: 0 };
@@ -76,7 +76,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 		//! Workaround
 		const cb1 = jest.fn(() => {});
 		const newIterationWatchable = new MockWatchable();
-		const [wait, done] = createWaiter();
+		const { awaiter, done } = createAwaiter();
 
 		setImmediate(() => {
 			newIterationWatchable.$watchPropertyNext('id1', cb1);
@@ -90,7 +90,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 			done();
 		});
 
-		await wait;
+		await awaiter;
 	});
 
 	it('should work with extra predicate', async () => {
@@ -99,7 +99,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 		const pred = () => callCount++ > 2;
 
 		const watchable = new MockWatchable();
-		const [wait, done] = createWaiter();
+		const { awaiter, done } = createAwaiter();
 
 		setImmediate(() => {
 			watchable.$watchProperty('id1', cb, {
@@ -115,7 +115,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 			done();
 		});
 
-		await wait;
+		await awaiter;
 	});
 
 	it('should work with times and extra predicate', async () => {
@@ -124,7 +124,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 		const pred = () => callCount++ > 2;
 
 		const watchable = new MockWatchable();
-		const [wait, done] = createWaiter();
+		const { awaiter, done } = createAwaiter();
 
 		setImmediate(() => {
 			watchable.$watchPropertyNext('id1', cb, 2, {
@@ -142,7 +142,7 @@ describe('micro-db/MicroDBPropertyWatchable tests', () => {
 			done();
 		});
 
-		await wait;
+		await awaiter;
 	});
 
 	it('should not throw error when last value is undefined', () => {

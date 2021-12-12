@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import mock from 'mock-fs';
 import { MicroDBBase } from '../db';
 import { JSONSerializer } from '../serializer/JSONSerializer';
 import { createBaseEnv, nextPath, readFile, setupTestDir } from './helper.test';
-import mock from 'mock-fs';
 
 describe('micro-db/DBBase tests', () => {
 	const serializer = new JSONSerializer();

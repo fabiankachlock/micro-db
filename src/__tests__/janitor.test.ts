@@ -1,7 +1,7 @@
+import mock from 'mock-fs';
 import { MicroDBJanitor } from '../janitor';
 import { JSONSerializer } from '../serializer/JSONSerializer';
 import { readFile, sleep, createBaseEnv, createJanitorEnv, createAwaiter } from './helper.test';
-import mock from 'mock-fs';
 
 describe('micro-db/DBBase tests', () => {
 	const serializer = new JSONSerializer();

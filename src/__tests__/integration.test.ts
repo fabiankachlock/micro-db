@@ -1,9 +1,8 @@
-import { MicroDB } from '../index';
-import * as index from '../index';
-import { MicroDBDriver } from '../driver';
-import { createAwaiter, createDriverEnv, nextPath, readFile, saveRemoveFolder, setupTestDir } from './helper.test';
-import path from 'path';
 import mock from 'mock-fs';
+import * as index from '../index';
+import { MicroDB } from '../index';
+import { MicroDBDriver } from '../driver';
+import { createAwaiter, createDriverEnv, nextPath, readFile } from './helper.test';
 
 describe('micro-db/integration test', () => {
 	beforeEach(() => {

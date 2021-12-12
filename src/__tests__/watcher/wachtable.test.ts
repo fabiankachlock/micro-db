@@ -1,10 +1,6 @@
-import { MicroDBWatchable } from '../../watcher/watchable';
-import path from 'path';
-import { MicroDBBase } from '../../db';
-import { saveRemoveFolder, setupTestDir, createBaseEnv, createDriverEnv, createJanitorEnv } from '../helper.test';
-import { MicroDBDriver } from '../../driver';
-import { MicroDBJanitor } from '../../janitor';
 import mock from 'mock-fs';
+import { MicroDBWatchable } from '../../watcher/watchable';
+import { createBaseEnv, createDriverEnv, createJanitorEnv } from '../helper.test';
 
 // TODO: make this prettier
 describe('micro-db/MicroDBWatchable tests', () => {

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import mock from 'mock-fs';
 import { MicroDBBase } from '../db';
 import { createAwaiter, nextPath } from './helper.test';
-import mock from 'mock-fs';
 
 const initDB = async (dbFile: string) => {
 	const { awaiter, done } = createAwaiter();

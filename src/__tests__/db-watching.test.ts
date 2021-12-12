@@ -1,9 +1,8 @@
-import path from 'path';
+import mock from 'mock-fs';
 import { MicroDBBase } from '../db';
 import { MicroDBData } from '../micro-db';
+import { createBaseEnv } from './helper.test';
 import { SubscriptionCallback } from '../watcher/interface';
-import { setupTestDir, saveRemoveFolder, createBaseEnv } from './helper.test';
-import mock from 'mock-fs';
 
 describe('micro-db/DBBase/watching tests', () => {
 	beforeEach(() => {
