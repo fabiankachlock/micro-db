@@ -3,9 +3,9 @@
 * [micro-db](README.md)
 * [Features](docs/features.md)
 
-## API <a href="#v2/api" id="v2/api"></a>
+## API <a href="#v2" id="v2"></a>
 
-* [overview](docs/api/v2/index.md)
+* [Overview](docs/api/v2/index.md)
 * [MicroDBBase](docs/api/v2/base.md)
 * [MicroDBDriver](docs/api/v2/driver.md)
 * [MicroDBFacade](docs/api/v2/facade.md)
