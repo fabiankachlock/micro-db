@@ -24,12 +24,10 @@ export class MicroDBFacade<T extends MicroDBData> {
 	}
 
 	constructor(options: Partial<MicroDBOptions> = {}) {
-		const db = new MicroDBBase({
+		this.db = new MicroDBDriver({
 			...options,
 			janitorCronjob: undefined,
 		});
-
-		this.db = MicroDBDriver.forDatabase(db);
 	}
 
 	// close db

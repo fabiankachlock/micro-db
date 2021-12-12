@@ -1,40 +1,30 @@
 import { MicroDBWatchable } from '../../watcher/watchable';
 import path from 'path';
 import { MicroDBBase } from '../../db';
-import { saveRemoveFolder, setupTestDir } from '../helper.test';
+import { saveRemoveFolder, setupTestDir, createBaseEnv, createDriverEnv, createJanitorEnv } from '../helper.test';
 import { MicroDBDriver } from '../../driver';
 import { MicroDBJanitor } from '../../janitor';
+import mock from 'mock-fs';
 
+// TODO: make this prettier
 describe('micro-db/MicroDBWatchable tests', () => {
-	let implementations: MicroDBWatchable<unknown, unknown>[] = [];
-
 	beforeEach(() => {
-		implementations = [
-			new MicroDBBase({ fileName: path.join('_watchable-tests', 'test0.db') }) as MicroDBWatchable<unknown, unknown>,
-			new MicroDBDriver({ fileName: path.join('_watchable-tests', 'test1.db') }) as MicroDBWatchable<unknown, unknown>,
-			new MicroDBJanitor() as MicroDBWatchable<unknown, unknown>,
-		];
+		mock();
 	});
 
 	afterEach(() => {
-		// @ts-ignore
-		implementations[0]['close']();
-		// @ts-ignore
-		implementations[1]['close']();
-		// @ts-ignore
-		implementations[2]['kill']();
+		mock.restore();
 	});
 
-	beforeAll(() => {
-		setupTestDir('_watchable-tests');
+	const createObjects = async () => ({
+		db: createBaseEnv().db,
+		driver: (await createDriverEnv()).driver,
+		janitor: createJanitorEnv('* * * * * *').janitor,
 	});
 
-	afterAll(() => {
-		saveRemoveFolder('_watchable-tests');
-	});
-
-	it('should trigger watcher', () => {
-		for (const target of implementations) {
+	it('should trigger watcher', async () => {
+		const implementations = await createObjects();
+		for (const target of Object.values(implementations) as MicroDBWatchable<unknown, unknown>[]) {
 			const callback = jest.fn((val, args, sub) => {
 				expect(val).toBeTruthy();
 				expect(args).toBeTruthy();
@@ -49,10 +39,14 @@ describe('micro-db/MicroDBWatchable tests', () => {
 			target['valueChanged']();
 			expect(callback).toBeCalledTimes(2);
 		}
+		await implementations.db.close();
+		await implementations.driver.close();
+		await implementations.janitor.kill();
 	});
 
-	it('should remove watcher', () => {
-		for (const target of implementations) {
+	it('should remove watcher', async () => {
+		const implementations = await createObjects();
+		for (const target of Object.values(implementations) as MicroDBWatchable<unknown, unknown>[]) {
 			const callback = jest.fn((val, args, sub) => {
 				expect(val).toBeTruthy();
 				expect(args).toBeTruthy();
@@ -68,10 +62,14 @@ describe('micro-db/MicroDBWatchable tests', () => {
 			target['valueChanged']();
 			expect(callback).toBeCalledTimes(1);
 		}
+		await implementations.db.close();
+		await implementations.driver.close();
+		await implementations.janitor.kill();
 	});
 
-	it('should watch only next', () => {
-		for (const target of implementations) {
+	it('should watch only next', async () => {
+		const implementations = await createObjects();
+		for (const target of Object.values(implementations) as MicroDBWatchable<unknown, unknown>[]) {
 			const callback = jest.fn((val, args, sub) => {
 				expect(val).toBeTruthy();
 				expect(args).toBeTruthy();
@@ -86,10 +84,14 @@ describe('micro-db/MicroDBWatchable tests', () => {
 			target['valueChanged']();
 			expect(callback).toBeCalledTimes(1);
 		}
+		await implementations.db.close();
+		await implementations.driver.close();
+		await implementations.janitor.kill();
 	});
 
-	it('should watch only next with extra predicate', () => {
-		for (const target of implementations) {
+	it('should watch only next with extra predicate', async () => {
+		const implementations = await createObjects();
+		for (const target of Object.values(implementations) as MicroDBWatchable<unknown, unknown>[]) {
 			const callback = jest.fn((val, args, sub) => {
 				expect(val).toBeTruthy();
 				expect(args).toBeTruthy();
@@ -117,10 +119,14 @@ describe('micro-db/MicroDBWatchable tests', () => {
 			target['valueChanged'](); // shouldn't be called because it got called once
 			expect(callback).toBeCalledTimes(1);
 		}
+		await implementations.db.close();
+		await implementations.driver.close();
+		await implementations.janitor.kill();
 	});
 
-	it('should watch with extra predicate', () => {
-		for (const target of implementations) {
+	it('should watch with extra predicate', async () => {
+		const implementations = await createObjects();
+		for (const target of Object.values(implementations) as MicroDBWatchable<unknown, unknown>[]) {
 			const callback = jest.fn((val, args, sub) => {
 				expect(val).toBeTruthy();
 				expect(args).toBeTruthy();
@@ -148,5 +154,8 @@ describe('micro-db/MicroDBWatchable tests', () => {
 			target['valueChanged'](); // should be called again
 			expect(callback).toBeCalledTimes(2);
 		}
+		await implementations.db.close();
+		await implementations.driver.close();
+		await implementations.janitor.kill();
 	});
 });

@@ -45,12 +45,12 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 		}
 	}
 
-	static forDatabase<T>(db: MicroDBBase): MicroDBDriver<T> {
+	static async forDatabase<T>(db: MicroDBBase): Promise<MicroDBDriver<T>> {
 		const driver = new MicroDBDriver<T>({});
 
-		driver.close();
+		await driver.close();
 		driver.db = db;
-		driver._data = db.read();
+		driver._data = await db.read();
 
 		return driver;
 	}
