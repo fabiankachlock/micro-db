@@ -34,6 +34,7 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 		});
 	}
 
+	// FIXME: Somehow also does not work with function syntax
 	private onValueChange = () => {
 		const newValue = { ...this.host._currentValue() };
 		for (const watcherId of Object.keys(this.watchers)) {
@@ -42,10 +43,10 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 		this.lastValue = newValue;
 	};
 
-	registerWatcher = (
+	registerWatcher(
 		callback: SubscriptionCallback<Value, ExtraArguments>,
 		options: Partial<SubscriptionOptions<Value>> = {}
-	): Subscription => {
+	): Subscription {
 		const id = uuid();
 		const subscription = new Subscription(id, () => this.deleteWatcher(id));
 
@@ -67,9 +68,9 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 		}
 
 		return subscription;
-	};
+	}
 
-	deleteWatcher = (id: string) => {
+	deleteWatcher(id: string) {
 		const record = this.watchers[id];
 
 		if (record) {
@@ -77,12 +78,12 @@ export class SubscriptionManager<Value, ExtraArguments extends {}> {
 			record.subscription.onClose();
 			delete this.watchers[id];
 		}
-	};
+	}
 
 	// call the callback function of a watcher if predicate yields true
-	private callWatcher = (id: string, value: Value, lastValue: Value | undefined) => {
+	private callWatcher(id: string, value: Value, lastValue: Value | undefined) {
 		if (id in this.watchers && this.watchers[id].predicate(value, lastValue)) {
 			this.watchers[id].callback(value, this.host._getCallbackArguments(), this.watchers[id].subscription);
 		}
-	};
+	}
 }

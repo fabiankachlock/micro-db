@@ -14,11 +14,11 @@ export class MicroDBMS {
 
 	static globalJanitor: MicroDBJanitor | undefined = undefined;
 
-	static setFolderPath = (folderPath: string) => {
+	static setFolderPath(folderPath: string) {
 		MicroDBMS.folderPath = folderPath;
-	};
+	}
 
-	static setJanitorCronjob = (cron: string | undefined) => {
+	static setJanitorCronjob(cron: string | undefined) {
 		MicroDBMS.globalJanitor?.kill();
 		const dbs = MicroDBMS.globalJanitor?.databases || [];
 		if (cron) {
@@ -29,9 +29,9 @@ export class MicroDBMS {
 		} else {
 			MicroDBMS.globalJanitor = undefined;
 		}
-	};
+	}
 
-	static table = async <T>(name: string, extraOptions: Partial<MicroDBOptions> = {}): Promise<MicroDBDriver<T>> => {
+	static async table<T>(name: string, extraOptions: Partial<MicroDBOptions> = {}): Promise<MicroDBDriver<T>> {
 		if (name in MicroDBMS.tables) {
 			throw new Error(`Table ${name} already exists!`);
 		}
@@ -46,9 +46,9 @@ export class MicroDBMS {
 		MicroDBMS.tables[name] = driver as MicroDBDriver<unknown>;
 
 		return driver;
-	};
+	}
 
-	static deleteTable = async (name: string) => {
+	static async deleteTable(name: string) {
 		const driver = MicroDBMS.tables[name];
 
 		if (driver) {
@@ -56,5 +56,5 @@ export class MicroDBMS {
 			MicroDBMS.globalJanitor?.deleteDatabase(driver.dbRef);
 			delete MicroDBMS.tables[name];
 		}
-	};
+	}
 }

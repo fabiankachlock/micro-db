@@ -9,15 +9,15 @@ import type { MicroDBData, MicroDBSerializer } from '../micro-db';
 export class JSONSerializer implements MicroDBSerializer {
 	serializeObject = async (key: string, value: any) => `${key}:${JSON.stringify(value)}\n`;
 
-	serializeAll = async (data: MicroDBData) => {
+	async serializeAll(data: MicroDBData) {
 		let finalString = '';
 		for (const entry of Object.entries(data)) {
 			finalString += await this.serializeObject(entry[0], entry[1]); // serialize every single key-value-pair
 		}
 		return finalString;
-	};
+	}
 
-	deserialize = async (raw: string) => {
+	async deserialize(raw: string) {
 		const rows = raw.split('\n');
 		const pairs = rows.map(entry => {
 			// invalid line
@@ -60,5 +60,5 @@ export class JSONSerializer implements MicroDBSerializer {
 			}
 			return prev;
 		}, {} as MicroDBData);
-	};
+	}
 }

@@ -25,18 +25,15 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 		}
 	};
 
-	$watch = (
-		callback: SubscriptionCallback<Value, CallbackArguments>,
-		options: Partial<SubscriptionOptions<Value>> = {}
-	) => {
+	$watch(callback: SubscriptionCallback<Value, CallbackArguments>, options: Partial<SubscriptionOptions<Value>> = {}) {
 		return this._subscriptionManager.registerWatcher(callback, options);
-	};
+	}
 
-	$watchNext = (
+	$watchNext(
 		callback: SubscriptionCallback<Value, CallbackArguments>,
 		times: number = 1,
 		options: Partial<SubscriptionOptions<Value>> = {}
-	) => {
+	) {
 		// init as not called
 		let numberOfCalls = 0;
 
@@ -59,5 +56,5 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 		});
 
 		return subscription;
-	};
+	}
 }
