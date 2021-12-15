@@ -1,7 +1,7 @@
 # Table of contents
 
 * [micro-db](README.md)
-* [Why micro-db](docs/why-micro-db.md)
+* [Why micro-db?](docs/why-micro-db.md)
 * [Features](docs/features.md)
 * [Common Pitfalls](docs/common-pitfalls.md)
 
