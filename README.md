@@ -2,11 +2,11 @@
 
 micro-db is a lightweight, file-based, zero config database for nodejs.
 
-For the full documentation please see [micro-db.fabiankachlock.dev](https://app.gitbook.com/s/ffACoLXzjoabaecwH2ie/).
+For the full documentation please see [micro-db.fabiankachlock.dev](https://micro-db.fabiankachlock.dev).
 
 ![Maintainability](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/maintainability) ![Coverage](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/test\_coverage)
 
-### Installation
+## Installation
 
 ```bash
 npm i node-micro-db
@@ -16,7 +16,26 @@ npm i node-micro-db
 yarn add node-micro-db
 ```
 
-### 🪄 Quickstart
+### Why micro-db
+
+* ☁️ Lightweight
+* ⚡️ Performant
+* ⌛️ Instant Persistent
+* 🔎 Debuggable
+* ✨ Typescript Support
+* ⚙️ Zero Config
+* 🛠 Expandable
+* 🔌 Easily Replaceable
+* [Read more ...](https://micro-db.fabiankachlock.dev/features)
+
+## Navigation
+* [Quickstart](https://micro-db.fabiankachlock.dev/#quickstart)
+* [Guide](https://micro-db.fabiankachlock.dev/guide/index)
+* [Example](https://micro-db.fabiankachlock.dev/example/index)
+* [API](https://micro-db.fabiankachlock.dev/v2/index)
+* [Legacy](https://micro-db.fabiankachlock.dev/old-versions)
+
+## 🪄 Quickstart
 
 ```typescript
 type User = {
@@ -43,62 +62,6 @@ const john1 = db.selectWhere(user => user.name === 'john');
 ```
 
 For more information about available methods, check out the [API](docs/api/v2/index.md)
-
-### Why micro-db
-
-* ☁️ Lightweight
-* ⚡️ Performat
-* ⌛️ Instant Persistent
-* 🔎 Debuggable
-* ✨ Typescript Support
-* ⚙️ Zero Config
-* 🛠 Expandable
-* 🔌 Easily Replaceable
-* [Read more ...](./#features)
-
-#### Why micro-db is outstanding
-
-The difference between micro-db and most json-based databases is, that most json-based databases serialize the whole data object before it can be stored into a file. micro-db appends data snapshots in key-value pairs directly into the file. This has the huge advantage of instant-persistency without a big workload, because only the stored object has to be serialized.
-
-micro-db stores data records with an internal database id as the key. This means there is no need for worrying about such things as primary keys, because micro-db does the job. If you need to use the generated id in your code, you can make your records id-aware
-
-Due to the fact, that micro-db only has to serialize the changed object micro-db can handle large collections of data records. The collection size only affects database startup and janitor clean cycle times. The only impact on database operation performance is the size of the data record itself. The bigger the record, the slower the database operations will be.
-
-
-
-### When to use micro-db
-
-micro-db loves an environment, where performance and instant-persistence matters, but space don't.
-
-### When **NOT** to use micro-db
-
-When space (database file size) is a heavy constraint for your nodejs app, you should consider using another database.
-
-#### How to deal with space constraints
-
-The [`MicroDBJanitor`](docs/api.md#microdbjanitor) is responsible for cleaning up the database file for redundant records. The [`MicroDBJanitor`](docs/api.md#microdbjanitor) is configured with a cronjob, which determines when and how often the janitor has to run. The more traffic or changes your database has, the more often the janitor should run to prevent huge overhead in file size.
-
-### Gotchas
-
-#### `undefined` vs `null` values
-
-In micro-db world a data value of `undefined` deletes the record. If you want to store optional records anyhow, you can use `null` for that.
-
-#### `$watchPropertyNext()`
-
-Making watching a property working correct, requires the currentValue and a `lastValue` (value before the change) to be passed into the predicate. Because of how Javascript works, while the SubscriptionManager gets constructed the derived class (the one you want to watch) isn't fully constructed yet, so the `lastValue` gets initialized as `undefined`. To take care of that, the `lastValue` gets its value within an `setImmediate()`.
-
-This results in the fact, that all `$watchProperty()` and `$watchPropertyNext()` subscriptions made within the iteration of the event loop while the constructor of the derived class (the one you are want to watch) is run, will be triggered whenever the first value change in the class appears.
-
-See example [in tests](https://github.com/fabiankachlock/micro-db/blob/main/src/\_\_tests\_\_/watcher/propertyWatchable.test.ts#L62-L73)
-
-#### RAM usage
-
-micro-db uses a fs.WriteStream under the hood for appending to the database file.This means for appending data the not the whole database file needs to be in RAM. BUT, since the database file gets evaluated at construction, the whole data contained in the database file will stored in RAM (inside a javascript object).
-
-#### Multiple `MicroDBBase.read`
-
-For performance reasons changes in the database are directly applied to the internal data object. This means micro-db's will only work with one active [`MicroDBBase`](docs/api.md#microdbbase) or [`MicroDBDriver`](docs/api.md#microdbdriver) at the time. Changes to the database file will not be recognized after initialization.
 
 ### Patterns
 

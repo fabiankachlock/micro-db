@@ -1,7 +1,9 @@
 # Table of contents
 
 * [micro-db](README.md)
+* [Why micro-db](docs/why-micro-db.md)
 * [Features](docs/features.md)
+* [Common Pitfalls](docs/common-pitfalls.md)
 
 ## API <a href="#v2" id="v2"></a>
 
@@ -27,6 +29,7 @@
 
 ## Examples
 
+* [Overview](docs/examples/index.md)
 * [Driver Pattern](docs/examples/driver.md)
 * [Facade Pattern](docs/examples/facade.md)
 * [Id-Awareness](docs/examples/id-awareness.md)
@@ -39,4 +42,5 @@
 
 ## Legacy <a href="#v1" id="v1"></a>
 
-* [api](docs/v1/api.md)
+* [Collection](docs/api/old-versions.md)
+* [api](docs/api/v1/api.md)
