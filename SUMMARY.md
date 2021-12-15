@@ -16,7 +16,7 @@
 * [Interfaces](docs/api/v2/interfaces.md)
 * [Constants](docs/api/v2/constants.md)
 
-## Guide <a href="#guide" id="guide"></a>
+## Guide
 
 * [Overview](docs/guide/index.md)
 * [Driver Usage](docs/guide/driver.md)
@@ -25,13 +25,13 @@
 * [Janitor](docs/guide/janitor.md)
 * [Subscriptions & Watching](docs/guide/subscriptions.md)
 
-## Examples <a href="#example" id="examples"></a>
+## Examples
 
 * [Driver Pattern](docs/examples/driver.md)
 * [Facade Pattern](docs/examples/facade.md)
 * [Id-Awareness](docs/examples/id-awareness.md)
 
-## How it works <a href="#how-it-works" id="how-it-works"></a>
+## How it works
 
 * [Storing Data](docs/how-it-works/data-storage.md)
 * [Performance](docs/how-it-works/performance.md)

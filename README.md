@@ -1,6 +1,8 @@
 # micro-db
 
-micro-db is a lightweight, (by default) json-based, file-based, zero config database for nodejs.
+micro-db is a lightweight, file-based, zero config database for nodejs.
+
+For the full documentation please see [micro-db.fabiankachlock.dev](https://app.gitbook.com/s/ffACoLXzjoabaecwH2ie/).
 
 ![Maintainability](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/maintainability) ![Coverage](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/test\_coverage)
 
@@ -16,7 +18,7 @@ yarn add node-micro-db
 
 ### 🪄 Quickstart
 
-```ts
+```typescript
 type User = {
 	name: string;
 	age: number;
@@ -40,47 +42,19 @@ const john1 = db.selectWhere(user => user.name === 'john');
 // john1.age = 24
 ```
 
-For more information about available methods, check out the API
-
-### Contents
-
-* micro-db
-  * Installation
-  * 🪄 Quickstart
-  * Contents
-  * Why micro-db
-    * Why micro-db is outstanding
-  * Features
-    * Typescript Support
-    * Debuggable
-    * Expandable
-    * Built in Janitor
-    * Easily Replaceable
-  * When to use micro-db
-  * When **NOT** to use micro-db
-    * How to deal with space constraints
-  * Gotchas
-    * `undefined` vs `null` values
-    * `$watchPropertyNext()`
-    * RAM usage
-    * Multiple `MicroDBBase.read`
-  * Patterns
-    * Facade Pattern
-      * Example
-      * Example (using instance methods rather than static ones)
-    * id-aware Records
-      * Example
+For more information about available methods, check out the [API](docs/api/v2/index.md)
 
 ### Why micro-db
 
 * ☁️ Lightweight
-* ⚡️ Preformat
+* ⚡️ Performat
 * ⌛️ Instant Persistent
 * 🔎 Debuggable
 * ✨ Typescript Support
 * ⚙️ Zero Config
 * 🛠 Expandable
 * 🔌 Easily Replaceable
+* [Read more ...](./#features)
 
 #### Why micro-db is outstanding
 
@@ -90,31 +64,7 @@ micro-db stores data records with an internal database id as the key. This means
 
 Due to the fact, that micro-db only has to serialize the changed object micro-db can handle large collections of data records. The collection size only affects database startup and janitor clean cycle times. The only impact on database operation performance is the size of the data record itself. The bigger the record, the slower the database operations will be.
 
-### Features
 
-#### Typescript Support
-
-micro-db supports static typing with typescript.
-
-To use the full power of typescript you should use micro-db as a sql database. Although, if type safety isn't a matter for you, you can use micro-db also as a nosql database (by using typescripts Union Types and Type Guards your nosql database can also be type safe).
-
-#### Debuggable
-
-micro-db's default json serializer stores all records in a human readable format in your database file. Since every database operation results is a new stored record, all operations an their results are traceable in the database file.
-
-#### Expandable
-
-If the json format used for serialization doesn't suits you needs, you can implement an own `MicroDBSerializer` yourself and pass it with your config.
-
-This technique can be used for things as encryption or data compression.
-
-#### Built in Janitor
-
-micro-db has a janitor built in. The main task of the [`MicroDBJanitor`](docs/api.md#microdbjanitor) is to clean redundant / outdated snapshots from your database file.
-
-#### Easily Replaceable
-
-When used right (with the [`MicroDBFacade`](docs/api.md#microdbfacade)), you hide the actual database operations from the rest of your app. Which means, that you can easily change your database later on, without even noticing it anywhere else in the app.
 
 ### When to use micro-db
 
