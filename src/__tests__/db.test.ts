@@ -3,7 +3,7 @@ import path from 'path';
 import mock from 'mock-fs';
 import { MicroDBBase } from '../db';
 import { JSONSerializer } from '../serializer/JSONSerializer';
-import { createBaseEnv, nextPath, readFile, setupTestDir } from './helper.test';
+import { createBaseEnv, nextPath, readFile, setupTestDir, sleep } from './helper.test';
 
 describe('micro-db/DBBase tests', () => {
 	const serializer = new JSONSerializer();
@@ -214,9 +214,8 @@ describe('micro-db/DBBase tests', () => {
 	it('should init with zero config', async () => {
 		await new Promise(res => {
 			expect(async () => {
-				const db = new MicroDBBase({
-					lazy: true, // needed for tests to run
-				});
+				const db = new MicroDBBase();
+				await sleep(250); // make sure all is initialized
 				await db.initialize();
 				await db.close();
 				res({});
