@@ -6,15 +6,12 @@ For the full documentation please see [micro-db.fabiankachlock.dev](https://micr
 
 ![Maintainability](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/maintainability) ![Coverage](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/test\_coverage)
 
-## Installation
-
-```bash
-npm i node-micro-db
-```
-
-```bash
-yarn add node-micro-db
-```
+## Navigation
+* [Quickstart](https://micro-db.fabiankachlock.dev/#quickstart)
+* [Guide](https://micro-db.fabiankachlock.dev/guide/index)
+* [Example](https://micro-db.fabiankachlock.dev/example/index)
+* [API](https://micro-db.fabiankachlock.dev/v2/index)
+* [Legacy](https://micro-db.fabiankachlock.dev/old-versions)
 
 ### Why micro-db
 
@@ -28,12 +25,15 @@ yarn add node-micro-db
 * 🔌 Easily Replaceable
 * [Read more ...](https://micro-db.fabiankachlock.dev/features)
 
-## Navigation
-* [Quickstart](https://micro-db.fabiankachlock.dev/#quickstart)
-* [Guide](https://micro-db.fabiankachlock.dev/guide/index)
-* [Example](https://micro-db.fabiankachlock.dev/example/index)
-* [API](https://micro-db.fabiankachlock.dev/v2/index)
-* [Legacy](https://micro-db.fabiankachlock.dev/old-versions)
+## Installation
+
+```bash
+npm i node-micro-db
+```
+
+```bash
+yarn add node-micro-db
+```
 
 ## 🪄 Quickstart
 

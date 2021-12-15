@@ -23,7 +23,6 @@
 * [Overview](docs/guide/index.md)
 * [Driver Usage](docs/guide/driver.md)
 * [Facade Pattern](docs/guide/facade.md)
-* [Gotchas](docs/guide/gotchas.md)
 * [Janitor](docs/guide/janitor.md)
 * [Subscriptions & Watching](docs/guide/subscriptions.md)
 
