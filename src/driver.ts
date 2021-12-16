@@ -193,6 +193,7 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 				updates[key] = mutated ? mutated : object; // use reference of object if mutation returned void
 			}
 		}
+
 		await this.db.writeBatch(updates);
 		this._data = await this.db.read();
 		if (updateCount > 0) this.valueChanged();

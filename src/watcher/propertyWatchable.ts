@@ -9,19 +9,21 @@ export abstract class MicroDBPropertyWatchable<Value, CallbackArguments> extends
 		property: P,
 		options: Partial<SubscriptionOptions<Value[P]>>
 	): Partial<SubscriptionOptions<Value>> {
+		const newPredicate = (newValue: Value, lastValue: Value | undefined) => {
+			const changed = lastValue ? newValue[property] !== lastValue[property] : true;
+
+			if (!changed) return false;
+
+			if (options.predicate) {
+				return options.predicate(newValue[property], lastValue ? lastValue[property] : undefined);
+			} else {
+				return true;
+			}
+		};
+
 		return {
 			...options,
-			predicate: (newValue, lastValue) => {
-				const changed = lastValue ? newValue[property] !== lastValue[property] : true;
-
-				if (changed) {
-					return options.predicate
-						? options.predicate(newValue[property], lastValue ? lastValue[property] : undefined)
-						: true;
-				}
-
-				return false;
-			},
+			predicate: newPredicate,
 		};
 	}
 

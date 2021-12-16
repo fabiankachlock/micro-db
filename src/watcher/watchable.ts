@@ -36,23 +36,23 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 	) {
 		// init as not called
 		let numberOfCalls = 0;
+		const newPredicate = (newValue: Value, lastValue: Value) => {
+			const allowed = options.predicate ? options.predicate(newValue, lastValue) : true;
+
+			// increment number of calls
+			numberOfCalls += allowed ? 1 : 0;
+			if (numberOfCalls > times) {
+				// destroy subscription when its called the last time
+				subscription.destroy();
+				return false;
+			}
+
+			return allowed;
+		};
 
 		const subscription = this._subscriptionManager.registerWatcher(callback, {
 			...options,
-			predicate: (newValue, lastValue) => {
-				const allowed = options.predicate ? options.predicate(newValue, lastValue) : true;
-
-				if (allowed) {
-					if (numberOfCalls >= times) {
-						// destroy subscription when its called the last time
-						subscription.destroy();
-						return false;
-					}
-					// increment number of calls
-					numberOfCalls += 1;
-				}
-				return allowed;
-			},
+			predicate: newPredicate,
 		});
 
 		return subscription;
