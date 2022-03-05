@@ -8,13 +8,13 @@
 ## API <a href="#v2" id="v2"></a>
 
 * [Overview](docs/api/v2/index.md)
-* [MicroDB](docs/v2/microdb.md)
+* [MicroDB](docs/api/v2/microdb.md)
 * [MicroDBBase](docs/api/v2/base.md)
 * [MicroDBDriver](docs/api/v2/driver.md)
 * [MicroDBFacade](docs/api/v2/facade.md)
 * [MicroDBJanitor](docs/api/v2/janitor.md)
 * [MicroDBMS](docs/api/v2/dbms.md)
-* [Subscription](docs/v2/subscription.md)
+* [Subscription](docs/api/v2/subscription.md)
 * [Types](docs/api/v2/types.md)
 * [Interfaces](docs/api/v2/interfaces.md)
 * [Constants](docs/api/v2/constants.md)

@@ -6,8 +6,8 @@ description: Quickly navigate to one of the api sites.
 
 ## Classes
 
-{% content-ref url="../../v2/microdb.md" %}
-[microdb.md](../../v2/microdb.md)
+{% content-ref url="microdb.md" %}
+[microdb.md](microdb.md)
 {% endcontent-ref %}
 
 {% content-ref url="base.md" %}
@@ -30,8 +30,8 @@ description: Quickly navigate to one of the api sites.
 [dbms.md](dbms.md)
 {% endcontent-ref %}
 
-{% content-ref url="../../v2/subscription.md" %}
-[subscription.md](../../v2/subscription.md)
+{% content-ref url="subscription.md" %}
+[subscription.md](subscription.md)
 {% endcontent-ref %}
 
 ## Other
