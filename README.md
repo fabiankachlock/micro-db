@@ -7,6 +7,7 @@ For the full documentation please see [micro-db.fabiankachlock.dev](https://micr
 ![Maintainability](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/maintainability) ![Coverage](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/test\_coverage)
 
 ## Navigation
+
 * [Quickstart](https://micro-db.fabiankachlock.dev/#quickstart)
 * [Guide](https://micro-db.fabiankachlock.dev/guide/index)
 * [Example](https://micro-db.fabiankachlock.dev/example/index)
@@ -75,24 +76,22 @@ The example below shows how straight forward this approach is:
 
 **Example**
 
-```ts
+```typescript
 export class UserDB extends MicroDBFacade<UserDBEntry> {
-	// 1. create the db instance
-	private static db = new UserDB({ fileName: 'db/users.db' });
+  // 1. create the db instance
+  private static db = new UserDB({ fileName: 'db/users.db' });
 
-	// 2. expose shutdown function
-	static shutdown = UserDB.db.shutdown;
+  // 2. expose shutdown function
+  static shutdown = UserDB.db.shutdown;
 
-	// 3. define complex database operations
-	static logout = (userId: string) => {
-		const userRecord = UserDB.db.select(userId);
-
-		// ...
-
-		UserDB.db.update(userId, {
-			//...
-		});
-	};
+  // 3. define complex database operations
+  static logout = (userId: string) => {
+    const userRecord = UserDB.db.select(userId);
+    // ...
+    UserDB.db.update(userId, {
+      //...
+    });
+  };
 }
 
 // 4. usage
@@ -101,25 +100,23 @@ UserDB.logout('some-user-id');
 
 **Example (using instance methods rather than static ones)**
 
-```ts
+```typescript
 export class UserDB extends MicroDBFacade<UserDBEntry> {
-	constructor() {
-		// 1. construct db instance
-		super({ fileName: 'db/users.db' });
-	}
-	// 2. expose shutdown function
-	shutdown = () => this.db.close();
+  constructor() {
+    // 1. construct db instance
+    super({ fileName: 'db/users.db' });
+  }
+  // 2. expose shutdown function
+  shutdown = () => this.db.close();
 
-	// 3. define complex database operations
-	logout = (userId: string) => {
-		const userRecord = this.db.select(userId);
-
-		// ...
-
-		this..db.update(userId, {
-			//...
-		});
-	};
+  // 3. define complex database operations
+  logout = (userId: string) => {
+    const userRecord = this.db.select(userId);
+    // ...
+    this..db.update(userId, {
+      //...
+    });
+  };
 }
 
 // 4. usage
@@ -133,25 +130,25 @@ Sometimes, you need your database records to be aware of their id. This is mainl
 
 **Example**
 
-```ts
+```typescript
 export class UserDB extends MicroDBFacade<UserDBEntry> {
-	// same as above
-	private static db = new UserDB({ name: 'users', fileName: 'db/users.db' });
-	static shutdown = UserDB.db.shutdown;
+  // same as above
+  private static db = new UserDB({ name: 'users', fileName: 'db/users.db' });
+  static shutdown = UserDB.db.shutdown;
 
-	static createUser = (name: string, age: number) => {
-		// 1. user object with empty id
-		const data: UserDBEntry = {
-			id: '',
-			name,
-			age,
-		};
+  static createUser = (name: string, age: number) => {
+    // 1. user object with empty id
+    const data: UserDBEntry = {
+      id: '',
+      name,
+      age,
+    };
 
-		// 2. create database records and receive id
-		const id = UserDB.db.create(data);
+    // 2. create database records and receive id
+    const id = UserDB.db.create(data);
 
-		// 3. update created record with received id
-		UserDB.db.update(id, { id });
-	};
+    // 3. update created record with received id
+    UserDB.db.update(id, { id });
+  };
 }
 ```
