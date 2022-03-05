@@ -16,6 +16,6 @@ export interface MicroDBOptions {
 
 export type WherePredicate<T> = (object: MicroDBEntry<T>) => boolean;
 
-export type Mutation<A, B> = (object: A, id: string) => B | void;
+export type Mutation<A, B> = (object: A, id: string) => B | void | Promise<B | void>;
 
 export type MicroDBEntry<T extends {}> = T & { _microdbId: string };

@@ -266,13 +266,3 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 		await this.deleteAllWhere(() => true);
 	}
 }
-
-// TODO: Docs
-// - Website
-// - Where predicates must be sync
-// - Mutations can be async
-
-// TODO: performance testing
-// single loop (like now)
-// vs
-// filter > map > Promise.all
