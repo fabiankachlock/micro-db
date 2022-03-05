@@ -2,7 +2,7 @@
 
 Generic Type `<T>`:  Type of the data stored in the db
 
-### **`static MicroDBDriver.forDatabase()`**
+### **`static forDatabase()`**
 
 Generic type `<T>`: Type of the data stored in the db
 
@@ -14,43 +14,43 @@ Create a MicroDBDriver instance for a (running) `MicroDBBase` instance.
 
 Returns: `Promise<MicroDBDriver<T>>`
 
-### **`MicroDBDriver.constructor()`**
+### **`constructor()`**
 
 | argument | type                      |
 | -------- | ------------------------- |
 | options  | `Partial<MicroDBOptions>` |
 
-### **`MicroDBDriver.dbRef`**
+### **`dbRef`**
 
 Returns a reference to the underlying `MicroDBBase`.
 
 Type: `readonly MicroDBBase`
 
-### **`MicroDBDriver.janitor`**
+### **`janitor`**
 
 Returns a reference to the active janitor instance (if a janitorCronjob got defined in the options).
 
 Type: `readonly MicroDBJanitor | undefined`
 
-### **`MicroDBDriver.`**`isInitialized()`
+### `isInitialized()`
 
 Returns the initialization state of the underlying `MicroDBBase`.
 
 Type: `readonly boolean`
 
-### **`MicroDBDriver.initialize()`**
+### **`initialize()`**
 
 Initialize the underlining `MicroDBBase` instance.
 
 Returns: `Promise<void>`
 
-### **`MicroDBDriver.close()`**
+### **`close()`**
 
 Closes the underlining `MicroDBBase` instance.
 
 Returns: `Promise<void>`
 
-### **`MicroDBDriver.create()`**
+### **`create()`**
 
 Create a new database record.
 
@@ -60,7 +60,7 @@ Create a new database record.
 
 Returns: `Promise<string>` (internal id of the new record)
 
-### **`MicroDBDriver.select()`**
+### **`select()`**
 
 Select a record by internal id (returned by `create` method).
 
@@ -70,7 +70,7 @@ Select a record by internal id (returned by `create` method).
 
 Returns: `Promise<MicroDBEntry<T> | undefined>`
 
-### **`MicroDBDriver.selectWhere()`**
+### **`selectWhere()`**
 
 Select the first record satisfying the predicate.
 
@@ -84,7 +84,7 @@ Remember: Where-Predicates must be synchronous
 
 Returns: `Promise<MicroDBEntry<T> | undefined>`
 
-### **`MicroDBDriver.selectAllWhere()`**
+### **`selectAllWhere()`**
 
 Select all records satisfying the predicate.
 
@@ -94,13 +94,13 @@ Select all records satisfying the predicate.
 
 Returns: `Promise<MicroDBEntry<T>[]>`
 
-### **`MicroDBDriver.selectAll()`**
+### **`selectAll()`**
 
 Select all records.
 
 Returns: `MicroDBEntry<T>[]`
 
-### **`MicroDBDriver.update()`**
+### **`update()`**
 
 Update a record by internal id (returned by `create` method).
 
@@ -111,7 +111,7 @@ Update a record by internal id (returned by `create` method).
 
 Returns: `Promise<boolean>` (if record could be updated)
 
-### **`MicroDBDriver.updateWhere()`**
+### **`updateWhere()`**
 
 Update the first record satisfying the predicate.
 
@@ -122,7 +122,7 @@ Update the first record satisfying the predicate.
 
 Returns: `Promise<boolean>` (if record could be updated)
 
-### **`MicroDBDriver.updateAllWhere()`**
+### **`updateAllWhere()`**
 
 Update all records satisfying the predicate.
 
@@ -133,7 +133,7 @@ Update all records satisfying the predicate.
 
 Returns: `Promise<number>` (count of updated records)
 
-### **`MicroDBDriver.mutate()`**
+### **`mutate()`**
 
 Mutate a record by internal id (returned by `create`] method).
 
@@ -148,7 +148,7 @@ Mutations can be async!
 
 Returns: `Promise<boolean>` (if record could be mutated)
 
-### **`MicroDBDriver.mutateWhere()`**
+### **`mutateWhere()`**
 
 Mutates the first record satisfying the predicate.
 
@@ -159,7 +159,7 @@ Mutates the first record satisfying the predicate.
 
 Returns: `Promise<boolean>` (if record could be mutated)
 
-### **`MicroDBDriver.mutateAllWhere()`**
+### **`mutateAllWhere()`**
 
 Mutate all records satisfying the predicate.
 
@@ -170,7 +170,7 @@ Mutate all records satisfying the predicate.
 
 Returns: `Promise<number>` (count of mutated records)
 
-### **`MicroDBDriver.mutateAll()`**
+### **`mutateAll()`**
 
 Mutate all records.
 
@@ -180,7 +180,7 @@ Mutate all records.
 
 Returns: `Promise<number>` (count of mutated records)
 
-### **`MicroDBDriver.delete()`**
+### **`delete()`**
 
 Delete a record by internal id (returned by `create`] method).
 
@@ -190,7 +190,7 @@ Delete a record by internal id (returned by `create`] method).
 
 Returns: `Promise<boolean>` (if a record could be deleted)
 
-### **`MicroDBDriver.deleteWhere()`**
+### **`deleteWhere()`**
 
 Delete the first record satisfying the predicate.
 
@@ -200,7 +200,7 @@ Delete the first record satisfying the predicate.
 
 Returns: `Promise<oolean>` (if a record could be deleted)
 
-### **`MicroDBDriver.deleteAllWhere()`**
+### **`deleteAllWhere()`**
 
 Delete all records satisfying the predicate.
 
@@ -210,7 +210,7 @@ Delete all records satisfying the predicate.
 
 Returns: `Promise<number>` (count of deleted records)
 
-### **`MicroDBDriver.flush()`**
+### **`flush()`**
 
 Delete all data from the database.
 

@@ -2,24 +2,24 @@
 
 Represents a reference to a subscription made with `$watch` or similar.
 
-### **`Subscription.id`**
+### **`id`**
 
 Type: `readonly string`
 
-### **`Subscription.constructor()`**
+### **`constructor()`**
 
 | argument | type         |
 | -------- | ------------ |
 | id       | `string`     |
 | destroy  | `() => void` |
 
-### **`Subscription.destroy()`**
+### **`destroy()`**
 
 Cancel the subscription.
 
 Returns: `void`
 
-### **`Subscription.onClose()`**
+### **`onClose()`**
 
 Function, that gets executed, when the subscription gets destroyed.
 

@@ -2,26 +2,26 @@
 
 The MicroDBJanitor cleans up data overhead and reduces database file size. It can be used either as global instance for batching cleanups with registerDatabase & deleteDatabase or as db-personal instance.
 
-### **`MicroDBJanitor.constructor()`**
+### **`constructor()`**
 
 | argument | type            | default                                    |
 | -------- | --------------- | ------------------------------------------ |
 | cron     | `string`        | `'00 00 00 * * *'` (every day at midnight) |
 | ...dbs   | `MicroDBBase[]` | -                                          |
 
-### **`MicroDBJanitor.databases`**
+### **`databases`**
 
 Returns all registered databases.
 
 Type: `MicroDBBase[]`
 
-### **`MicroDBJanitor.cronString`**
+### **`cronString`**
 
 Returns the cronjob configuration.
 
 Type: `readonly string`
 
-### **`static MicroDBJanitor.cleanUp()`**
+### **`static cleanUp()`**
 
 Cleans the database passed as an argument asynchronously.
 
@@ -31,13 +31,13 @@ Cleans the database passed as an argument asynchronously.
 
 Returns: `Promise<void>`
 
-### **`MicroDBJanitor.cleanAll()`**
+### **`cleanAll()`**
 
 Cleans all registered databases.
 
 Returns: `void`
 
-### **`MicroDBJanitor.registerDatabase()`**
+### **`registerDatabase()`**
 
 Register a new database to be cleaned by the janitor.
 
@@ -47,11 +47,11 @@ Register a new database to be cleaned by the janitor.
 
 Returns: `void`
 
-### **`MicroDBJanitor.deleteDatabase()`**
+### **`deleteDatabase()`**
 
 Delete a registered database.
 
-> **Which database is going to be deleted is determined by the filename of the database** This means you don't need to pass the correct reference to the database, but if you would have two databases running on the same file (why???) both would get deleted.
+> **Which database is going to be deleted is determined by the filename of the database.** This means you don't need to pass the correct reference to the database, but if you would have two databases running on the same file both would get deleted.
 
 | argument | type          |
 | -------- | ------------- |
@@ -59,13 +59,13 @@ Delete a registered database.
 
 Returns: `void`
 
-### **`MicroDBJanitor.kill()`**
+### **`kill()`**
 
 Stops the running cronjob of the janitor.
 
 Returns: `void`
 
-### **`MicroDBJanitor.restart()`**
+### **`restart()`**
 
 Restarts a stopped janitor.
 

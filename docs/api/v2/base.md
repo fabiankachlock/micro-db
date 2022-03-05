@@ -6,37 +6,37 @@ description: The api of the MicroDBBase class.
 
 The MicroDBBase class is the heart of the micro-db package. It manages reading and writing to files.
 
-### **`MicroDBBase.constructor()`**
+### **`constructor()`**
 
 | argument | type                      |
 | -------- | ------------------------- |
 | options  | `Partial<MicroDBOptions>` |
 
-### `MicroDBBase.isInitialized`
+### `isInitialized`
 
 Returns true when the db is initialized.&#x20;
 
 Type: `readonly boolean`
 
-### **`MicroDBBase.fileName`**
+### **`fileName`**
 
 Returns the filename of the db-file.
 
 Type: `readonly string`
 
-### **`MicroDBBase.dataSerializer`**
+### **`dataSerializer`**
 
 Returns a reference to the active serializer.
 
 Type: `readonly MicroDBSerializer`
 
-### **`MicroDBBase.janitor`**
+### **`janitor`**
 
 Returns a reference to the active janitor instance (if a janitorCronjob got defined in the options).
 
 Type: `readonly MicroDBJanitor | undefined`
 
-### `MicroDBBase.initialize()`
+### `initialize()`
 
 Initialize the Database (read in existing data, setup the writeStream, etc.)
 
@@ -46,13 +46,13 @@ The initialization happens automatically before read/write operations when the i
 
 Returns: `Promise<void>`
 
-### **`MicroDBBase.read()`**
+### **`read()`**
 
 Get the current dataset of the database.
 
 Returns: `Promise<MicroDBData>()`
 
-### **`MicroDBBase.write()`**
+### **`write()`**
 
 Write a single record into the db file.
 
@@ -63,7 +63,7 @@ Write a single record into the db file.
 
 Returns: `Promise<void>`
 
-### **`MicroDBBase.writeBatch()`**
+### **`writeBatch()`**
 
 Write multiple records into the file at once.
 
@@ -73,13 +73,13 @@ Write multiple records into the file at once.
 
 Returns: `Promise<void>`
 
-### `MicroDBBase.deallocate()`
+### `deallocate()`
 
 Free up memory space by ending the writeStream and removing all stored data from RAM. The Janitor will keep running.
 
 Returns: `Promise<void>`
 
-### **`MicroDBBase.close()`**
+### **`close()`**
 
 Ends the writeStream and kills the janitor (if existing).
 

@@ -28,7 +28,7 @@ Where-Predicates must be synchronous
 
 ## `Mutation<A, B>`
 
-Type: `(object: A, id: string) => B | void | Promise<B |void>`
+Type: `(object: A, id: string) => B | void | Promise<B | void>`
 
 {% hint style="info" %}
 `Mutations can by async.`

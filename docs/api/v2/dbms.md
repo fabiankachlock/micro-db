@@ -6,19 +6,19 @@ The MicroDBMS class is a small container for managing multiple MicroDB's with an
 It is intended to use with the static methods and not as instance.
 {% endhint %}
 
-### **`static MicroDBMS.allTables`**
+### **`static allTables`**
 
 Returns all active tables as `MicroDBDriver`.
 
 Type: `Record<string, MicroDBDriver<unknown>>`
 
-### **`static MicroDBMS.globalJanitor`**
+### **`static globalJanitor`**
 
 Returns a global `MicroDBJanitor` instance.
 
 Type: `MicroDBJanitor | undefined`
 
-### **`static MicroDBMS.setFolderPath()`**
+### **`static setFolderPath()`**
 
 Set the path of the folder, where all database files will get stored.
 
@@ -28,7 +28,7 @@ Set the path of the folder, where all database files will get stored.
 
 Returns: `void`
 
-### **`static MicroDBMS.setJanitorCronjob()`**
+### **`static setJanitorCronjob()`**
 
 Set the cronjob of the global janitor.
 
@@ -38,7 +38,7 @@ Set the cronjob of the global janitor.
 
 Returns: `void`
 
-### **`static MicroDBMS.table<T>()`**
+### **`static table<T>()`**
 
 Create a new table in the DBMS's folder path.
 
@@ -49,7 +49,7 @@ Create a new table in the DBMS's folder path.
 
 Returns: `Promise<MicroDBDriver<T>>`
 
-### **`static MicroDBMS.deleteTable()`**
+### **`static deleteTable()`**
 
 Delete a active table.
 

@@ -2,13 +2,13 @@
 
 The MicroDB class only serves the purpose of providing syntax sugar for the [`MicroDbDriver`](driver.md).
 
-### `MicroDB<T>.constructor():` [`MicroDBDriver<T>`](driver.md)``
+### `constructor():` [`MicroDBDriver<T>`](driver.md)``
 
 | argument | type                      |
 | -------- | ------------------------- |
 | options  | `Partial<MicroDBOptions>` |
 
-### `static MicroDB.table<T>()`
+### `static table<T>()`
 
 | argument | type                      |
 | -------- | ------------------------- |
@@ -16,7 +16,7 @@ The MicroDB class only serves the purpose of providing syntax sugar for the [`Mi
 
 Returns: instance of the `MicroDBDriver`.
 
-### `static MicroDB.database()`
+### `static database()`
 
 | argument | type                      |
 | -------- | ------------------------- |
@@ -24,7 +24,7 @@ Returns: instance of the `MicroDBDriver`.
 
 Returns: instance of the `MicroDBBase`.
 
-### `static MicroDB.janitor()`
+### `static janitor()`
 
 | argument | type            |
 | -------- | --------------- |
