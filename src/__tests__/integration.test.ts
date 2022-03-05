@@ -1,23 +1,16 @@
-import { MicroDB } from '../index';
+import mock from 'mock-fs';
 import * as index from '../index';
+import { MicroDB } from '../index';
 import { MicroDBDriver } from '../driver';
-import { readFile, saveRemoveFolder, setupTestDir } from './helper.test';
-import path from 'path';
+import { createAwaiter, createDriverEnv, nextPath, readFile } from './helper.test';
 
 describe('micro-db/integration test', () => {
-	let driver: MicroDBDriver<{ msg: string }>;
-	const dbPath = path.join('_integration-tests', 'driver.db');
-
-	beforeAll(() => {
-		setupTestDir('_integration-tests');
-
-		driver = new MicroDB({
-			fileName: dbPath,
-		});
+	beforeEach(() => {
+		mock();
 	});
 
-	afterAll(() => {
-		saveRemoveFolder('_integration-tests');
+	afterEach(() => {
+		mock.restore();
 	});
 
 	it('should provide all classes from index', () => {
@@ -27,66 +20,82 @@ describe('micro-db/integration test', () => {
 		expect(index['MicroDBJanitor']).toBeDefined();
 	});
 
-	it('should clean up file after mutate all', () => {
-		driver.create({ msg: Math.random().toString() });
-		driver.create({ msg: Math.random().toString() });
-		driver.create({ msg: Math.random().toString() });
+	it('should clean up file after mutate all', async () => {
+		const { driver, dbFile } = await createDriverEnv<{ msg: string }>();
 
-		const before = readFile(dbPath);
+		await driver.create({ msg: Math.random().toString() });
+		await driver.create({ msg: Math.random().toString() });
+		await driver.create({ msg: Math.random().toString() });
 
-		driver.mutateAll(entry => {
+		const before = readFile(dbFile);
+
+		await driver.mutateAll(entry => {
 			entry.msg += 'xxx';
 			return entry;
 		});
 
-		const after = readFile(dbPath);
+		const after = readFile(dbFile);
 
-		for (const obj of driver.selectAll()) {
+		const data = await driver.selectAll();
+		for (const obj of data) {
 			expect(obj.msg).toMatch(/xxx$/);
 		}
+
 		expect(before.split('\n').length).toBe(after.split('\n').length);
 	});
 
-	it('should create driver for db', () => {
+	it('should create driver for db', async () => {
+		const dbFile = nextPath();
 		const db = MicroDB.database({
-			fileName: dbPath,
+			fileName: dbFile,
 		});
 
-		expect(() => {
-			const driver = MicroDBDriver.forDatabase(db);
+		const { awaiter, done } = createAwaiter();
+		expect(async () => {
+			const driver = await MicroDBDriver.forDatabase(db);
 			expect(driver).toBeTruthy();
-
-			driver.close();
+			await driver.close();
+			done();
 		}).not.toThrow();
+		await awaiter;
 	});
 
-	it('should work with index instance', () => {
-		expect(() => {
+	it('should work with index instance', async () => {
+		const { awaiter, done } = createAwaiter();
+		expect(async () => {
 			const j1 = MicroDB.janitor('* * * * *');
 			expect(j1).toBeTruthy();
-			j1.kill();
+			await j1.kill();
 
 			const db = MicroDB.database({
-				fileName: dbPath,
+				fileName: nextPath(),
+				lazy: true,
 			});
 			const j2 = MicroDB.janitor('* * * * *', db);
 			expect(j2).toBeTruthy();
-			j2.kill();
-			db.close();
+			await j2.kill();
+			await db.close();
 
 			const driver = MicroDB.table<{}>({
-				fileName: dbPath,
+				fileName: nextPath(),
+				lazy: true,
 			});
 			expect(driver).toBeTruthy();
-			driver.close();
+			await driver.close();
 
 			const db2 = MicroDB.database({
 				janitorCronjob: '* * * * *',
+				lazy: true,
 			});
-			const driver2 = MicroDB.forDatabase(db2);
+
+			const driver2 = await MicroDB.forDatabase(db2);
 			expect(driver2).toBeTruthy();
 			expect(db2).toBeTruthy();
-			db2.close();
+			await driver2.close();
+			await db2.close();
+
+			done();
 		}).not.toThrow();
+		await awaiter;
 	});
 });

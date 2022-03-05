@@ -1,8 +1,9 @@
-import { MicroDBBase } from './db';
+import { tsMethodSignature } from '@babel/types';
+import fs from 'fs/promises';
 import schedule, { Job } from 'node-schedule';
 import { v4 as uuid } from 'uuid';
-import * as fs from 'fs/promises';
-import * as fsSync from 'fs';
+import { MicroDBBase } from './db';
+import { createCallbackAwaiter } from './helper';
 import { MicroDBWatchable } from './watcher/watchable';
 
 type ExtraArgument = {
@@ -15,6 +16,8 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 	private job: Job | null; // job gets null when canceled
 
 	private dbs: MicroDBBase[];
+
+	private runningPromise: Promise<{}> | undefined = undefined;
 
 	get databases(): MicroDBBase[] {
 		return this.dbs;
@@ -36,49 +39,55 @@ export class MicroDBJanitor extends MicroDBWatchable<{}, ExtraArgument> {
 		this.setupJob();
 	}
 
-	private setupJob = () => {
+	private setupJob() {
 		this.job = schedule.scheduleJob(`micro-db janitor ${uuid()}`, this.cronString, this.cleanUpCallBack);
-	};
+	}
 
+	// FIXME: this does not work when written in function syntax
 	private cleanUpCallBack = async () => {
-		this.valueChanged();
+		const { waiter, callback } = createCallbackAwaiter(() => {
+			this.runningPromise = undefined; // dispose waiting promise
+		});
+
+		this.runningPromise = waiter as unknown as Promise<{}>;
 		for (const db of this.dbs) {
-			MicroDBJanitor.cleanUp(db);
+			await MicroDBJanitor.cleanUp(db);
 		}
+
+		// notify that its done
+		callback();
+		this.valueChanged();
 	};
 
-	public static cleanUp = async (db: MicroDBBase) => {
-		const content = await fs.readFile(db.fileName);
-		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
-		await fs.writeFile(db.fileName, db.dataSerializer.serializeAll(data));
-	};
-
-	public static cleanUpSync = (db: MicroDBBase) => {
-		const content = fsSync.readFileSync(db.fileName);
-		const data = db.dataSerializer.deserialize(content.toString('utf-8'));
-		fsSync.writeFileSync(db.fileName, db.dataSerializer.serializeAll(data));
-	};
+	public static async cleanUp(db: MicroDBBase) {
+		const content = await fs.readFile(db.config.fileName);
+		const data = await db.config.serializer.deserialize(content.toString('utf-8'));
+		await fs.writeFile(db.config.fileName, await db.config.serializer.serializeAll(data));
+	}
 
 	public cleanAll = this.cleanUpCallBack;
 
-	public registerDatabase = (db: MicroDBBase) => {
+	public registerDatabase(db: MicroDBBase) {
 		this.dbs.push(db);
-	};
+	}
 
-	public deleteDatabase = (db: MicroDBBase) => {
-		this.dbs = this.dbs.filter(d => d.fileName !== db.fileName);
-	};
+	public deleteDatabase(db: MicroDBBase) {
+		this.dbs = this.dbs.filter(d => d.config.fileName !== db.config.fileName);
+	}
 
-	public kill = () => {
+	public async kill() {
 		if (this.job) {
+			if (this.runningPromise) {
+				await this.runningPromise;
+			}
 			this.job.cancel(false);
 			this.job = null;
 		}
-	};
+	}
 
-	public restart = () => {
+	public async restart() {
 		if (!this.job) {
 			this.setupJob();
 		}
-	};
+	}
 }

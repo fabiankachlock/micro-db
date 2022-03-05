@@ -1,27 +1,25 @@
 import { JSONSerializer } from '../../serializer/JSONSerializer';
-import { MicroDB } from '../../index';
-import { MicroDBBase } from '../../db';
 
 describe('micro-db/JSONSerializer tests', () => {
 	const serializer = new JSONSerializer();
 
-	it('should serialize object correct', () => {
+	it('should serialize object correct', async () => {
 		const data = {
 			str: 'abc',
 			num: 4,
 			bool: true,
 		};
 
-		expect(serializer.serializeObject('123', data)).toBe(`123:${JSON.stringify(data)}\n`);
+		expect(await serializer.serializeObject('123', data)).toBe(`123:${JSON.stringify(data)}\n`);
 	});
 
-	it('should serialize undefined object correct', () => {
+	it('should serialize undefined object correct', async () => {
 		const data = undefined;
 
-		expect(serializer.serializeObject('123', data)).toBe(`123:undefined\n`);
+		expect(await serializer.serializeObject('123', data)).toBe(`123:undefined\n`);
 	});
 
-	it('should serialize multiple object correct', () => {
+	it('should serialize multiple object correct', async () => {
 		const data = {
 			id1: {
 				str: 'abc',
@@ -31,10 +29,12 @@ describe('micro-db/JSONSerializer tests', () => {
 			id2: undefined,
 		};
 
-		expect(serializer.serializeAll(data)).toBe(`id1:${JSON.stringify(data.id1)}\nid2:${JSON.stringify(data.id2)}\n`);
+		expect(await serializer.serializeAll(data)).toBe(
+			`id1:${JSON.stringify(data.id1)}\nid2:${JSON.stringify(data.id2)}\n`
+		);
 	});
 
-	it('should deserialize data correct', () => {
+	it('should deserialize data correct', async () => {
 		const data = {
 			id1: {
 				str: 'abc',
@@ -44,9 +44,9 @@ describe('micro-db/JSONSerializer tests', () => {
 			id2: undefined, // removed
 			id3: null, // not removed
 		};
-		const str = serializer.serializeAll(data);
+		const str = await serializer.serializeAll(data);
 
-		const deserialized = serializer.deserialize(str);
+		const deserialized = await serializer.deserialize(str);
 
 		expect(deserialized).toBeTruthy();
 
@@ -58,7 +58,7 @@ describe('micro-db/JSONSerializer tests', () => {
 		expect(deserialized['id3']).toEqual(null);
 	});
 
-	it('should override data correctly', () => {
+	it('should override data correctly', async () => {
 		const data = {
 			id1: {
 				str: 'abc',
@@ -71,7 +71,7 @@ describe('micro-db/JSONSerializer tests', () => {
 				another: 'one',
 			},
 		};
-		const str = serializer.serializeAll(data);
+		const str = await serializer.serializeAll(data);
 
 		const data1 = {
 			id1: undefined, // now deleted
@@ -83,10 +83,9 @@ describe('micro-db/JSONSerializer tests', () => {
 			},
 		};
 
-		const str1 = serializer.serializeAll(data1);
+		const str1 = await serializer.serializeAll(data1);
 
-		const deserialized = serializer.deserialize(str + str1);
-
+		const deserialized = await serializer.deserialize(str + str1);
 		expect(deserialized).toBeTruthy();
 
 		expect('id1' in deserialized).toBe(false);
@@ -101,7 +100,7 @@ describe('micro-db/JSONSerializer tests', () => {
 		expect(deserialized['id5']).toEqual(data1.id5);
 	});
 
-	it('should skip lines with wrong format', () => {
+	it('should skip lines with wrong format', async () => {
 		const testCases = [
 			`id0 ${JSON.stringify({ test: true })}\n`, // no ':'
 			`:${JSON.stringify({ test: true })}\n`, // no key
@@ -114,9 +113,9 @@ describe('micro-db/JSONSerializer tests', () => {
 		const results = [{}, {}, {}, {}, {}, {}];
 
 		for (let i = 0; i < testCases.length; i++) {
-			const desirialized = serializer.deserialize(testCases[i]);
+			const deserialized = await serializer.deserialize(testCases[i]);
 
-			expect(desirialized).toEqual(results[i]);
+			expect(deserialized).toEqual(results[i]);
 		}
 	});
 });

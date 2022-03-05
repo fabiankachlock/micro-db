@@ -1,7 +1,7 @@
 import { SubscriptionCallback, SubscriptionOptions } from './interface';
-import { Subscribeable, SubscriptionManager } from './subscriptionManager';
+import { Subscribables, SubscriptionManager } from './subscriptionManager';
 
-export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subscribeable<Value, CallbackArguments> {
+export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subscribables<Value, CallbackArguments> {
 	// @internal
 	_subscriptionManager: SubscriptionManager<Value, CallbackArguments>;
 
@@ -25,39 +25,36 @@ export abstract class MicroDBWatchable<Value, CallbackArguments> implements Subs
 		}
 	};
 
-	$watch = (
-		callback: SubscriptionCallback<Value, CallbackArguments>,
-		options: Partial<SubscriptionOptions<Value>> = {}
-	) => {
+	$watch(callback: SubscriptionCallback<Value, CallbackArguments>, options: Partial<SubscriptionOptions<Value>> = {}) {
 		return this._subscriptionManager.registerWatcher(callback, options);
-	};
+	}
 
-	$watchNext = (
+	$watchNext(
 		callback: SubscriptionCallback<Value, CallbackArguments>,
 		times: number = 1,
 		options: Partial<SubscriptionOptions<Value>> = {}
-	) => {
+	) {
 		// init as not called
 		let numberOfCalls = 0;
+		const newPredicate = (newValue: Value, lastValue: Value) => {
+			const allowed = options.predicate ? options.predicate(newValue, lastValue) : true;
+
+			// increment number of calls
+			numberOfCalls += allowed ? 1 : 0;
+			if (numberOfCalls > times) {
+				// destroy subscription when its called the last time
+				subscription.destroy();
+				return false;
+			}
+
+			return allowed;
+		};
 
 		const subscription = this._subscriptionManager.registerWatcher(callback, {
 			...options,
-			predicate: (newValue, lastValue) => {
-				const allowed = options.predicate ? options.predicate(newValue, lastValue) : true;
-
-				if (allowed) {
-					if (numberOfCalls >= times) {
-						// destroy subscription when its called the last time
-						subscription.destroy();
-						return false;
-					}
-					// increment number of calls
-					numberOfCalls += 1;
-				}
-				return allowed;
-			},
+			predicate: newPredicate,
 		});
 
 		return subscription;
-	};
+	}
 }

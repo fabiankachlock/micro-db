@@ -1,9 +1,9 @@
 export type MicroDBData = Record<string, any>;
 
 export interface MicroDBSerializer {
-	serializeObject(key: string, value: any): string;
-	serializeAll(data: MicroDBData): string;
-	deserialize(raw: string): MicroDBData;
+	serializeObject(key: string, value: any): Promise<string>;
+	serializeAll(data: MicroDBData): Promise<string>;
+	deserialize(raw: string): Promise<MicroDBData>;
 }
 
 export interface MicroDBOptions {
@@ -11,6 +11,7 @@ export interface MicroDBOptions {
 	defaultData: MicroDBData | undefined;
 	serializer: MicroDBSerializer;
 	janitorCronjob: string | undefined;
+	lazy: boolean;
 }
 
 export type WherePredicate<T> = (object: MicroDBEntry<T>) => boolean;

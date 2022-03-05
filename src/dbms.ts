@@ -14,11 +14,11 @@ export class MicroDBMS {
 
 	static globalJanitor: MicroDBJanitor | undefined = undefined;
 
-	static setFolderPath = (folderPath: string) => {
+	static setFolderPath(folderPath: string) {
 		MicroDBMS.folderPath = folderPath;
-	};
+	}
 
-	static setJanitorCronjob = (cron: string | undefined) => {
+	static setJanitorCronjob(cron: string | undefined) {
 		MicroDBMS.globalJanitor?.kill();
 		const dbs = MicroDBMS.globalJanitor?.databases || [];
 		if (cron) {
@@ -29,30 +29,32 @@ export class MicroDBMS {
 		} else {
 			MicroDBMS.globalJanitor = undefined;
 		}
-	};
+	}
 
-	static table = <T>(name: string, extraOptions: Partial<MicroDBOptions> = {}): MicroDBDriver<T> => {
+	static async table<T>(name: string, extraOptions: Partial<MicroDBOptions> = {}): Promise<MicroDBDriver<T>> {
 		if (name in MicroDBMS.tables) {
 			throw new Error(`Table ${name} already exists!`);
 		}
 
 		const driver = new MicroDBDriver<T>({
 			fileName: path.join(MicroDBMS.folderPath, `${name}.db`),
+			lazy: true,
 			...extraOptions,
 		});
+		await driver.initialize();
 
 		MicroDBMS.tables[name] = driver as MicroDBDriver<unknown>;
 
 		return driver;
-	};
+	}
 
-	static deleteTable = (name: string) => {
+	static async deleteTable(name: string) {
 		const driver = MicroDBMS.tables[name];
 
 		if (driver) {
-			driver.close();
+			await driver.close();
 			MicroDBMS.globalJanitor?.deleteDatabase(driver.dbRef);
 			delete MicroDBMS.tables[name];
 		}
-	};
+	}
 }

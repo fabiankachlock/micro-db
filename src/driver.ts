@@ -18,6 +18,10 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 		return this.db;
 	}
 
+	get isInitialized(): boolean {
+		return this.db.isInitialized;
+	}
+
 	readonly janitor: MicroDBJanitor | undefined = undefined;
 
 	// @internal
@@ -41,43 +45,47 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 		}
 	}
 
-	static forDatabase = <T>(db: MicroDBBase): MicroDBDriver<T> => {
+	static async forDatabase<T>(db: MicroDBBase): Promise<MicroDBDriver<T>> {
 		const driver = new MicroDBDriver<T>({});
 
-		driver.close();
+		await driver.close();
 		driver.db = db;
-		driver._data = db.read();
+		driver._data = await db.read();
 
 		return driver;
-	};
+	}
+
+	async initialize() {
+		await this.db.initialize();
+	}
 
 	// close db
-	close = () => {
-		this.db.close();
-		this.janitor?.kill();
-	};
+	async close() {
+		await this.db.close();
+		await this.janitor?.kill();
+	}
 
 	// create a new record
-	create = (object: T): string => {
+	async create(object: T): Promise<string> {
 		const id = uuid();
-		this.db.write(id, object);
-		this._data = this.db.read();
+		await this.db.write(id, object);
+		this._data = await this.db.read();
 		this.valueChanged();
 		return id;
-	};
+	}
 
 	// select a record by db id
-	select = (id: string): MicroDBEntry<T> | undefined => {
+	async select(id: string): Promise<MicroDBEntry<T> | undefined> {
 		const data = this._data[id];
 
 		if (data) {
 			return withId(data, id);
 		}
 		return undefined;
-	};
+	}
 
 	// select first record that fulfill predicate
-	selectWhere = (pred: WherePredicate<T>): MicroDBEntry<T> | undefined => {
+	async selectWhere(pred: WherePredicate<T>): Promise<MicroDBEntry<T> | undefined> {
 		for (const [key, value] of Object.entries(this._data)) {
 			const valueWithId = withId(value, key);
 			if (pred(valueWithId)) {
@@ -85,10 +93,10 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 			}
 		}
 		return undefined;
-	};
+	}
 
 	// select all records that fulfill predicate
-	selectAllWhere = (pred: WherePredicate<T>): MicroDBEntry<T>[] => {
+	async selectAllWhere(pred: WherePredicate<T>): Promise<MicroDBEntry<T>[]> {
 		const objects: MicroDBEntry<T>[] = [];
 		for (const [key, value] of Object.entries(this._data)) {
 			const valueWithId = withId(value, key);
@@ -97,37 +105,39 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 			}
 		}
 		return objects;
-	};
+	}
 
 	// select all records
-	selectAll = () => this.selectAllWhere(() => true);
+	async selectAll() {
+		return await this.selectAllWhere(() => true);
+	}
 
 	// update a record
-	update = (id: string, object: Partial<T>): boolean => {
+	async update(id: string, object: Partial<T>): Promise<boolean> {
 		if (id in this._data) {
-			this.db.write(id, {
+			await this.db.write(id, {
 				...this._data[id],
 				...object,
 			});
-			this._data = this.db.read();
+			this._data = await this.db.read();
 			this.valueChanged();
 			return true;
 		}
 		return false;
-	};
+	}
 
 	// update first record that fulfill predicate
-	updateWhere = (pred: WherePredicate<T>, object: Partial<T>): boolean => {
+	async updateWhere(pred: WherePredicate<T>, object: Partial<T>): Promise<boolean> {
 		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(withId(value, key))) {
-				return this.update(key, object);
+				return await this.update(key, object);
 			}
 		}
 		return false;
-	};
+	}
 
 	// update all records that fulfill predicate
-	updateAllWhere = (pred: WherePredicate<T>, object: Partial<T>): number => {
+	async updateAllWhere(pred: WherePredicate<T>, object: Partial<T>): Promise<number> {
 		const updates: MicroDBData = {};
 		let updateCount = 0;
 
@@ -140,37 +150,38 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 				};
 			}
 		}
-		this.db.writeBatch(updates);
-		this._data = this.db.read();
+
+		await this.db.writeBatch(updates);
+		this._data = await this.db.read();
 		if (updateCount > 0) this.valueChanged();
 		return updateCount;
-	};
+	}
 
 	// mutate a record
-	mutate = (id: string, mutation: Mutation<T, T>): boolean => {
+	async mutate(id: string, mutation: Mutation<T, T>): Promise<boolean> {
 		if (id in this._data) {
 			const object = this._data[id];
-			const mutated = mutation(object, id);
-			this.db.write(id, mutated ? mutated : object); // use reference of object if mutation returned void
-			this._data = this.db.read();
+			const mutated = await mutation(object, id);
+			await this.db.write(id, mutated ? mutated : object); // use reference of object if mutation returned void
+			this._data = await this.db.read();
 			this.valueChanged();
 			return true;
 		}
 		return false;
-	};
+	}
 
 	// mutate first record that fulfill predicate
-	mutateWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>): boolean => {
+	async mutateWhere(pred: WherePredicate<T>, mutation: Mutation<T, T>): Promise<boolean> {
 		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(withId(value, key))) {
-				return this.mutate(key, mutation);
+				return await this.mutate(key, mutation);
 			}
 		}
 		return false;
-	};
+	}
 
 	// mutate all records that fulfill predicate
-	mutateAllWhere = (pred: WherePredicate<T>, mutation: Mutation<T, T>): number => {
+	async mutateAllWhere(pred: WherePredicate<T>, mutation: Mutation<T, T>): Promise<number> {
 		const updates: MicroDBData = {};
 		let updateCount = 0;
 
@@ -178,46 +189,52 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 			if (pred(withId(value, key))) {
 				updateCount += 1;
 				const object = this._data[key];
-				const mutated = mutation(object, key);
+				const mutated = await mutation(object, key);
 				updates[key] = mutated ? mutated : object; // use reference of object if mutation returned void
 			}
 		}
-		this.db.writeBatch(updates);
-		this._data = this.db.read();
+
+		await this.db.writeBatch(updates);
+		this._data = await this.db.read();
 		if (updateCount > 0) this.valueChanged();
 		return updateCount;
-	};
+	}
 
-	mutateAll = <B>(mutation: Mutation<T, B>) => {
+	async mutateAll<B>(mutation: Mutation<T, B>): Promise<number> {
 		const updates: MicroDBData = {};
+		let updateCount = 0;
+
 		for (const [key, value] of Object.entries(this._data)) {
+			updateCount++;
 			const object = value;
-			const mutated = mutation(object, key);
+			const mutated = await mutation(object, key);
 			updates[key] = mutated ? mutated : object; // use reference of object if mutation returned void
 		}
-		this.db.writeBatch(updates);
-		this._data = this.db.read();
+		await this.db.writeBatch(updates);
+		this._data = await this.db.read();
 		this.valueChanged();
+
 		// force clean db, because file size could double
-		MicroDBJanitor.cleanUpSync(this.dbRef);
-	};
+		await MicroDBJanitor.cleanUp(this.dbRef);
+		return updateCount;
+	}
 
 	// delete a record
-	delete = (id: string): boolean => {
+	async delete(id: string): Promise<boolean> {
 		const exists = id in this._data;
 
 		if (exists) {
-			this.db.write(id, undefined);
-			this._data = this.db.read();
+			await this.db.write(id, undefined);
+			this._data = await this.db.read();
 			this.valueChanged();
 			return true;
 		}
 
 		return false;
-	};
+	}
 
 	// delete first record that fulfill predicate
-	deleteWhere = (pred: WherePredicate<T>): boolean => {
+	async deleteWhere(pred: WherePredicate<T>): Promise<boolean> {
 		for (const [key, value] of Object.entries(this._data)) {
 			if (pred(withId(value, key))) {
 				this.delete(key);
@@ -225,10 +242,10 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 			}
 		}
 		return false;
-	};
+	}
 
 	// delete all records that fulfill predicate
-	deleteAllWhere = (pred: WherePredicate<T>): number => {
+	async deleteAllWhere(pred: WherePredicate<T>): Promise<number> {
 		const updates: MicroDBData = {};
 		let updateCount = 0;
 
@@ -238,11 +255,24 @@ export class MicroDBDriver<T> extends MicroDBPropertyWatchable<Record<string, T>
 				updates[key] = undefined;
 			}
 		}
-		this.db.writeBatch(updates);
+
+		await this.db.writeBatch(updates);
 		if (updateCount > 0) this.valueChanged();
 		return updateCount;
-	};
+	}
 
 	// clear whole table
-	flush = () => this.deleteAllWhere(() => true);
+	async flush() {
+		await this.deleteAllWhere(() => true);
+	}
 }
+
+// TODO: Docs
+// - Website
+// - Where predicates must be sync
+// - Mutations can be async
+
+// TODO: performance testing
+// single loop (like now)
+// vs
+// filter > map > Promise.all
