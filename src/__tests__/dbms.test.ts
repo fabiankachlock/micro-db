@@ -14,7 +14,7 @@ describe('micro-db/MicroDBMS tests', () => {
 
 	afterEach(async () => {
 		await MicroDBMS.globalJanitor?.kill();
-		for (const table in Object.keys(MicroDBMS.allTables)) {
+		for (const table of Object.keys(MicroDBMS.allTables)) {
 			await MicroDBMS.deleteTable(table);
 		}
 		mock.restore();

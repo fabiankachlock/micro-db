@@ -72,3 +72,6 @@ _*tests
 example
 # default db file
 micro.db
+
+perf.test.js
+dump.txt
