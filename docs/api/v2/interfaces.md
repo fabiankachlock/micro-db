@@ -31,7 +31,7 @@ Generic Types:
 
 Implemented by: `MicroDBJanitor`
 
-### **`MicroDBWatchable.$watch()`**
+### **`$watch()`**
 
 Watch for all upcoming value changes while the subscription is active.
 
@@ -42,7 +42,7 @@ Watch for all upcoming value changes while the subscription is active.
 
 Returns: `Subscription`
 
-### **`MicroDBWatchable.$watchNext()`**
+### **`$watchNext()`**
 
 Watch for the next value change.
 
@@ -67,7 +67,7 @@ Generic Types:
 
 Implemented by: `MicroDBBase`, `MicroDBDriver`
 
-### **`MicroDBPropertyWatchable.$watchProperty()`**
+### **`$watchProperty()`**
 
 Watch for all upcoming property changes while the subscription is active.
 
@@ -79,7 +79,7 @@ Watch for all upcoming property changes while the subscription is active.
 
 Returns: `Subscription`
 
-### **`MicroDBPropertyWatchable.$watchPropertyNext()`**
+### **`$watchPropertyNext()`**
 
 Watch for the next property change.
 
