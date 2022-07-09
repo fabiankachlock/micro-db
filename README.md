@@ -1,5 +1,7 @@
 # micro-db
 
+> **INFO:** v2 of micro-db is late stage of development and on the track to be released soon
+
 micro-db is a lightweight, (by default) json-based, file-based, zero config database for nodejs.
 
 ![Maintainability](https://api.codeclimate.com/v1/badges/d529c6f4ff7dfb2dc28b/maintainability)
